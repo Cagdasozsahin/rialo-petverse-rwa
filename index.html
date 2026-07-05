@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Rialo PetVerse RWA</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080808;--bg2:#0f0f0f;--bg3:#161616;--cream:#F0E6D3;--amber:#D4945A;--amber2:#F0B070;--gold:#C8A96E;--text:#D8CFBF;--muted:#6B6355;--border:rgba(240,230,211,0.08);--green:#4CAF50;--red:#E05050;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;overflow-x:hidden;cursor:none;}
+.cursor{position:fixed;left:0;top:0;width:12px;height:12px;background:var(--amber2);border-radius:50%;pointer-events:none;z-index:9999;transform:translate3d(-50%,-50%,0);transition:width .2s,height .2s;mix-blend-mode:difference;will-change:transform;}
+.cursor-ring{position:fixed;left:0;top:0;width:40px;height:40px;border:1px solid rgba(240,176,112,0.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate3d(-50%,-50%,0);transition:width .3s,height .3s;will-change:transform;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--amber);border-radius:3px;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 50px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(20px);background:rgba(8,8,8,0.8);border-bottom:1px solid var(--border);transition:all .3s;}
+.nav-left{display:flex;align-items:center;gap:14px;}
+.nav-logo-img{width:38px;height:38px;background:var(--cream);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 0 20px rgba(212,148,90,0.3);}
+.nav-logo-img img{width:28px;height:28px;object-fit:contain;}
+.nav-brand{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--cream);line-height:1;}
+.nav-brand span{color:var(--amber);}
+.nav-center{display:flex;gap:36px;list-style:none;}
+.nav-center a{text-decoration:none;color:var(--muted);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;transition:color .3s;}
+.nav-center a:hover{color:var(--cream);}
+.nav-right{display:flex;align-items:center;gap:12px;}
+
+/* Lang Toggle */
+.lang-toggle{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:4px;gap:4px;}
+.lang-btn{padding:5px 14px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:none;background:transparent;color:var(--muted);cursor:none;transition:all .3s;}
+.lang-btn.active{background:var(--amber);color:#080808;}
+
+/* Wallet Button */
+.wallet-btn{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:8px 18px;color:var(--cream);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;cursor:none;transition:all .3s;}
+.wallet-btn:hover{border-color:rgba(212,148,90,.3);background:rgba(212,148,90,.05);}
+.wallet-btn.connected{border-color:rgba(76,175,80,.4);color:var(--green);}
+.wallet-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);}
+.wallet-btn.connected .wallet-dot{background:var(--green);box-shadow:0 0 8px rgba(76,175,80,.6);animation:pulse 2s infinite;}
+.nav-cta{background:var(--amber);color:#080808;border:none;padding:10px 22px;border-radius:100px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:none;transition:all .3s;text-decoration:none;}
+.nav-cta:hover{background:var(--amber2);transform:scale(1.05);}
+
+/* ── WALLET MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-overlay.open{backdrop-filter:blur(10px);}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:40px;width:440px;max-width:90vw;position:relative;transform:translateY(20px);transition:transform .3s;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--bg3);border:1px solid var(--border);border-radius:50%;width:32px;height:32px;color:var(--muted);font-size:18px;cursor:none;display:flex;align-items:center;justify-content:center;transition:all .3s;}
+.modal-close:hover{color:var(--cream);border-color:rgba(212,148,90,.3);}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:var(--cream);margin-bottom:8px;}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:32px;}
+.wallet-options{display:flex;flex-direction:column;gap:12px;}
+.wallet-option{display:flex;align-items:center;gap:16px;padding:20px 24px;background:var(--bg3);border:1px solid var(--border);border-radius:16px;cursor:none;transition:all .3s;position:relative;}
+.wallet-option:hover{border-color:rgba(212,148,90,.25);background:rgba(212,148,90,.04);}
+.wallet-option-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+.wallet-option-mm{background:linear-gradient(135deg,#E8821A22,#E8821A44);}
+.wallet-option-keplr{background:linear-gradient(135deg,#6B52AE22,#6B52AE44);}
+.wallet-option-info h3{font-size:15px;font-weight:600;color:var(--cream);}
+.wallet-option-info p{font-size:12px;color:var(--muted);margin-top:2px;}
+.wallet-option-arrow{position:absolute;right:20px;color:var(--muted);font-size:18px;transition:transform .3s;}
+.wallet-option:hover .wallet-option-arrow{transform:translateX(4px);color:var(--amber);}
+.wallet-status{margin-top:20px;padding:16px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.2);border-radius:12px;display:flex;align-items:center;gap:10px;display:none;}
+.wallet-status.show{display:flex;}
+.wallet-status-icon{font-size:20px;}
+.wallet-status-txt{font-size:13px;color:var(--green);}
+.wallet-status-addr{font-size:11px;color:var(--muted);margin-top:2px;font-family:monospace;}
+
+/* ── HERO ── */
+#hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding-top:80px;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(212,148,90,0.08) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 10% 80%,rgba(200,169,110,0.05) 0%,transparent 60%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(240,230,211,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(240,230,211,0.025) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent);}
+.hero-content{position:relative;z-index:1;text-align:center;max-width:900px;padding:0 40px;animation:fadeUp 1s ease both;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(212,148,90,0.1);border:1px solid rgba(212,148,90,0.25);border-radius:100px;padding:6px 18px;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--amber2);margin-bottom:32px;}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--amber2);animation:pulse 2s infinite;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(48px,8vw,92px);font-weight:300;line-height:1.05;color:var(--cream);margin-bottom:28px;}
+.hero-title em{font-style:italic;color:var(--amber);display:block;}
+.hero-sub{font-size:16px;font-weight:300;line-height:1.7;color:var(--muted);max-width:540px;margin:0 auto 48px;}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:var(--amber);color:#080808;border:none;padding:15px 36px;border-radius:100px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:none;transition:all .3s;text-decoration:none;display:inline-block;}
+.btn-primary:hover{background:var(--amber2);transform:translateY(-3px);box-shadow:0 20px 40px rgba(212,148,90,.3);}
+.btn-outline{background:transparent;color:var(--cream);border:1px solid rgba(240,230,211,0.2);padding:15px 36px;border-radius:100px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;cursor:none;transition:all .3s;text-decoration:none;display:inline-block;}
+.btn-outline:hover{border-color:var(--amber);color:var(--amber);transform:translateY(-3px);}
+.hero-scroll{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;}
+.hero-scroll span{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
+.scroll-line{width:1px;height:50px;background:linear-gradient(to bottom,var(--amber),transparent);animation:scrollLine 2s ease-in-out infinite;}
+
+/* ── STATS ── */
+#stats{padding:60px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg2);}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:40px;max-width:1100px;margin:0 auto;text-align:center;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:var(--cream);line-height:1;margin-bottom:8px;}
+.stat-num span{color:var(--amber);}
+.stat-label{font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+
+/* ── SECTIONS COMMON ── */
+section{padding:100px 60px;}
+.section-tag{font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.section-tag::before{content:'';display:block;width:30px;height:1px;background:var(--amber);}
+.section-tag.center{justify-content:center;}
+.section-tag.center::before,.section-tag.center::after{content:'';display:block;width:30px;height:1px;background:var(--amber);}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,5vw,60px);font-weight:300;line-height:1.1;color:var(--cream);margin-bottom:20px;}
+.section-title em{font-style:italic;color:var(--amber);}
+.section-desc{font-size:15px;font-weight:300;line-height:1.8;color:var(--muted);max-width:520px;}
+
+/* ── ABOUT ── */
+#about{background:var(--bg);}
+.about-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.about-logo-wrap{width:320px;height:320px;border-radius:40px;background:var(--cream);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 0 80px rgba(212,148,90,.2);}
+.about-logo-wrap img{width:240px;height:240px;object-fit:contain;}
+.about-badge{position:absolute;right:-20px;bottom:40px;background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:14px 22px;}
+.about-badge-val{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--amber2);}
+.about-badge-lbl{font-size:11px;color:var(--muted);letter-spacing:.08em;}
+.about-list{display:flex;flex-direction:column;gap:14px;margin-top:16px;}
+.about-list-item{display:flex;gap:14px;align-items:flex-start;padding:18px;border-radius:14px;background:var(--bg2);border:1px solid var(--border);transition:border-color .3s;}
+.about-list-item:hover{border-color:rgba(212,148,90,.2);}
+.about-list-icon{width:34px;height:34px;border-radius:10px;background:rgba(212,148,90,.1);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.about-list-txt h4{font-size:13px;font-weight:600;color:var(--cream);margin-bottom:3px;}
+.about-list-txt p{font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* ── FEATURES ── */
+#features{background:var(--bg2);}
+.features-inner{max-width:1200px;margin:0 auto;}
+.features-header{margin-bottom:50px;}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.feature-card{padding:44px 36px;background:var(--bg3);position:relative;overflow:hidden;transition:background .3s;}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--amber),transparent);opacity:0;transition:opacity .3s;}
+.feature-card:hover{background:#1a1a1a;}
+.feature-card:hover::before{opacity:1;}
+.feature-num{font-family:'Cormorant Garamond',serif;font-size:64px;font-weight:300;color:rgba(240,230,211,0.04);position:absolute;top:16px;right:24px;line-height:1;}
+.feature-icon{font-size:30px;margin-bottom:20px;display:block;}
+.feature-title{font-size:17px;font-weight:600;color:var(--cream);margin-bottom:10px;}
+.feature-desc{font-size:13px;color:var(--muted);line-height:1.7;}
+
+/* ── NFT MARKETPLACE ── */
+#marketplace{background:var(--bg);}
+.market-inner{max-width:1300px;margin:0 auto;}
+.market-header{margin-bottom:50px;}
+.market-filters{display:flex;gap:10px;margin-bottom:40px;flex-wrap:wrap;}
+.filter-btn{padding:8px 20px;border-radius:100px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;cursor:none;transition:all .3s;}
+.filter-btn.active,.filter-btn:hover{background:var(--amber);border-color:var(--amber);color:#080808;}
+.nft-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.nft-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;transition:all .4s;position:relative;}
+.nft-card:hover{transform:translateY(-8px);border-color:rgba(212,148,90,.25);box-shadow:0 30px 60px rgba(0,0,0,.5);}
+.nft-img-wrap{position:relative;overflow:hidden;height:220px;}
+.nft-img{width:100%;height:100%;object-fit:cover;transition:transform .6s;}
+.nft-card:hover .nft-img{transform:scale(1.08);}
+.nft-badge{position:absolute;top:12px;left:12px;background:rgba(8,8,8,.75);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:100px;padding:4px 12px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber2);}
+.nft-rarity{position:absolute;top:12px;right:12px;padding:4px 12px;border-radius:100px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
+.rarity-legendary{background:rgba(200,169,110,.2);border:1px solid rgba(200,169,110,.4);color:#C8A96E;}
+.rarity-epic{background:rgba(147,51,234,.2);border:1px solid rgba(147,51,234,.4);color:#A855F7;}
+.rarity-rare{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);color:#60A5FA;}
+.rarity-common{background:rgba(107,107,107,.2);border:1px solid rgba(107,107,107,.4);color:#9CA3AF;}
+.nft-body{padding:18px;}
+.nft-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--cream);margin-bottom:4px;}
+.nft-type{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;}
+.nft-traits{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.nft-trait{padding:3px 10px;background:rgba(240,230,211,.04);border:1px solid var(--border);border-radius:100px;font-size:10px;color:var(--muted);}
+.nft-footer{display:flex;align-items:center;justify-content:space-between;}
+.nft-price{display:flex;flex-direction:column;}
+.nft-price-eth{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--cream);line-height:1;}
+.nft-price-usd{font-size:11px;color:var(--muted);}
+.nft-buy-btn{background:var(--amber);color:#080808;border:none;padding:9px 20px;border-radius:100px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;cursor:none;transition:all .3s;}
+.nft-buy-btn:hover{background:var(--amber2);transform:scale(1.05);}
+
+/* Buy Modal */
+.buy-modal{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:36px;width:400px;max-width:90vw;position:relative;transform:translateY(20px);transition:transform .3s;}
+.modal-overlay.open .buy-modal{transform:translateY(0);}
+.buy-nft-preview{display:flex;gap:16px;align-items:center;margin-bottom:28px;padding:16px;background:var(--bg3);border-radius:14px;border:1px solid var(--border);}
+.buy-nft-img{width:70px;height:70px;border-radius:12px;object-fit:cover;}
+.buy-nft-name{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--cream);}
+.buy-nft-sub{font-size:12px;color:var(--muted);}
+.buy-token-icon{width:70px;height:70px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;}
+.buy-qty-row{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.buy-qty-row input{flex:1;background:rgba(240,230,211,.04);border:1px solid var(--border);border-radius:12px;padding:10px 14px;color:var(--cream);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;outline:none;transition:border-color .3s;}
+.buy-qty-row input:focus{border-color:rgba(212,148,90,.4);}
+.buy-detail-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.buy-detail-row:last-child{border-bottom:none;}
+.buy-detail-label{font-size:13px;color:var(--muted);}
+.buy-detail-val{font-size:13px;color:var(--cream);font-weight:500;}
+.buy-total{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--amber);}
+.buy-actions{display:flex;gap:10px;margin-top:24px;}
+.buy-confirm{flex:1;background:var(--amber);color:#080808;border:none;padding:14px;border-radius:100px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:none;transition:all .3s;}
+.buy-confirm:hover{background:var(--amber2);}
+.buy-cancel{background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:14px 24px;border-radius:100px;font-family:'Outfit',sans-serif;font-size:13px;cursor:none;transition:all .3s;}
+.buy-cancel:hover{color:var(--cream);}
+
+/* ── GALLERY ── */
+#gallery{background:var(--bg2);}
+.gallery-inner{max-width:1400px;margin:0 auto;}
+.gallery-header{margin-bottom:50px;max-width:600px;}
+.pets-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:auto;gap:14px;}
+.pet-card{border-radius:18px;overflow:hidden;position:relative;cursor:none;}
+.pet-card:nth-child(1){grid-column:span 2;grid-row:span 2;}
+.pet-card:nth-child(5){grid-column:span 2;}
+.pet-img{width:100%;height:100%;min-height:200px;object-fit:cover;display:block;transition:transform .6s;filter:brightness(.85);}
+.pet-card:nth-child(1) .pet-img{min-height:430px;}
+.pet-card:nth-child(5) .pet-img{min-height:220px;}
+.pet-card:hover .pet-img{transform:scale(1.05);filter:brightness(1);}
+.pet-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,8,.7) 0%,transparent 50%);opacity:0;transition:opacity .3s;display:flex;align-items:flex-end;padding:20px;}
+.pet-card:hover .pet-overlay{opacity:1;}
+.pet-label{font-size:12px;font-weight:600;color:var(--cream);letter-spacing:.08em;text-transform:uppercase;}
+.pet-corner-badge{position:absolute;top:14px;right:14px;background:rgba(8,8,8,.7);backdrop-filter:blur(10px);border:1px solid rgba(212,148,90,.3);border-radius:100px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--amber2);letter-spacing:.1em;text-transform:uppercase;}
+
+/* ── TOKENS ── */
+#tokens{background:var(--bg);}
+.tokens-inner{max-width:1200px;margin:0 auto;}
+.tokens-header{text-align:center;margin-bottom:60px;}
+.tokens-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.token-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;transition:all .3s;position:relative;overflow:hidden;}
+.token-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(212,148,90,.05),transparent 60%);pointer-events:none;}
+.token-card:hover{border-color:rgba(212,148,90,.2);transform:translateY(-4px);}
+.token-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.token-header>div:last-child{min-width:0;flex:1;}
+.token-nft-count{display:inline-block;font-size:10.5px;color:var(--amber);font-weight:700;margin-top:5px;letter-spacing:.02em;background:rgba(212,148,90,.12);border:1px solid rgba(212,148,90,.3);border-radius:100px;padding:3px 10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+@keyframes tokenPulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(212,148,90,.6);}40%{transform:scale(1.08);box-shadow:0 0 0 6px rgba(212,148,90,0);}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(212,148,90,0);}}
+.token-nft-pulse{animation:tokenPulse .6s ease;}
+.token-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.token-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--cream);line-height:1;}
+.token-ticker{font-size:12px;color:var(--amber);letter-spacing:.1em;font-weight:600;}
+.token-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+.token-stat{background:var(--bg3);border-radius:10px;padding:12px 14px;}
+.token-stat-label{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+.token-stat-val{font-size:15px;font-weight:600;color:var(--cream);}
+.token-stat-val.up{color:var(--green);}
+.token-stat-val.down{color:var(--red);}
+.token-progress{margin-bottom:16px;}
+.token-progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;}
+.token-progress-bar{height:4px;background:var(--bg3);border-radius:100px;overflow:hidden;}
+.token-progress-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--amber),var(--amber2));}
+.token-action{display:flex;gap:8px;}
+.token-buy{flex:1;background:rgba(212,148,90,.1);border:1px solid rgba(212,148,90,.2);color:var(--amber);border-radius:100px;padding:10px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:none;transition:all .3s;}
+.token-buy:hover{background:var(--amber);color:#080808;}
+.token-fav{width:40px;height:40px;background:var(--bg3);border:1px solid var(--border);border-radius:100px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:none;transition:all .3s;}
+.token-fav:hover{border-color:rgba(212,148,90,.3);}
+
+/* ── HOW ── */
+#how{background:var(--bg2);}
+.how-inner{max-width:1100px;margin:0 auto;}
+.how-header{text-align:center;margin-bottom:70px;}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);position:relative;}
+.steps::before{content:'';position:absolute;top:27px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,transparent,var(--border),var(--border),transparent);}
+.step{text-align:center;padding:0 18px;}
+.step-num{width:54px;height:54px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--amber);position:relative;z-index:1;transition:all .3s;}
+.step:hover .step-num{background:var(--amber);color:#080808;box-shadow:0 0 30px rgba(212,148,90,.4);}
+.step h3{font-size:14px;font-weight:600;color:var(--cream);margin-bottom:8px;}
+.step p{font-size:12px;color:var(--muted);line-height:1.7;}
+
+/* ── RWA ── */
+#rwa{background:var(--bg);overflow:hidden;}
+.rwa-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.rwa-cards{display:flex;flex-direction:column;gap:14px;}
+.rwa-card{padding:24px 28px;border-radius:18px;background:var(--bg2);border:1px solid var(--border);display:flex;gap:18px;align-items:flex-start;transition:all .3s;position:relative;overflow:hidden;}
+.rwa-card::after{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--amber);transform:scaleY(0);transition:transform .3s;transform-origin:top;}
+.rwa-card:hover{border-color:rgba(212,148,90,.15);transform:translateX(8px);}
+.rwa-card:hover::after{transform:scaleY(1);}
+.rwa-card-icon{font-size:26px;flex-shrink:0;}
+.rwa-card h3{font-size:14px;font-weight:600;color:var(--cream);margin-bottom:4px;}
+.rwa-card p{font-size:12px;color:var(--muted);line-height:1.6;}
+.rwa-orb{width:420px;height:420px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(212,148,90,.15),rgba(212,148,90,.02) 60%,transparent 80%);border:1px solid rgba(212,148,90,.1);display:flex;align-items:center;justify-content:center;position:relative;animation:orbFloat 6s ease-in-out infinite;}
+.rwa-orb-inner{width:280px;height:280px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(212,148,90,.2),rgba(200,169,110,.05) 60%,transparent 80%);border:1px solid rgba(212,148,90,.15);display:flex;align-items:center;justify-content:center;}
+.rwa-logo-center{width:140px;height:140px;background:var(--cream);border-radius:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(212,148,90,.3);}
+.rwa-logo-center img{width:108px;height:108px;object-fit:contain;}
+.rwa-orb-ring{position:absolute;inset:-30px;border-radius:50%;border:1px dashed rgba(212,148,90,.1);animation:spin 30s linear infinite;}
+.rwa-orb-dot{position:absolute;width:10px;height:10px;background:var(--amber);border-radius:50%;top:18px;left:50%;transform:translateX(-50%);box-shadow:0 0 15px rgba(212,148,90,.6);}
+
+/* ── CTA ── */
+#cta{background:var(--bg2);padding:100px 60px;text-align:center;position:relative;overflow:hidden;}
+#cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(212,148,90,.06),transparent);}
+.cta-inner{position:relative;max-width:680px;margin:0 auto;}
+.cta-title{font-family:'Cormorant Garamond',serif;font-size:clamp(38px,5vw,68px);font-weight:300;color:var(--cream);line-height:1.1;margin-bottom:20px;}
+.cta-title em{font-style:italic;color:var(--amber);}
+.cta-sub{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:44px;}
+.cta-form{display:flex;gap:12px;max-width:440px;margin:0 auto;}
+.cta-input{flex:1;padding:15px 22px;background:rgba(240,230,211,.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color .3s;}
+.cta-input:focus{border-color:rgba(212,148,90,.4);}
+.cta-input::placeholder{color:var(--muted);}
+
+/* ── FOOTER ── */
+footer{background:var(--bg);padding:60px 60px 36px;border-top:1px solid var(--border);}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:50px;margin-bottom:50px;}
+.footer-logo{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.footer-logo-img{width:34px;height:34px;background:var(--cream);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.footer-logo-img img{width:24px;height:24px;object-fit:contain;}
+.footer-brand-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--cream);}
+.footer-brand-name span{color:var(--amber);}
+.footer-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:24px;max-width:260px;}
+.footer-social{display:flex;gap:10px;}
+.social-btn{width:34px;height:34px;border-radius:10px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;text-decoration:none;transition:all .3s;cursor:none;}
+.social-btn:hover{border-color:rgba(212,148,90,.3);background:rgba(212,148,90,.1);}
+.footer-col h4{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--cream);margin-bottom:18px;}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.footer-col ul a{text-decoration:none;color:var(--muted);font-size:12px;transition:color .3s;}
+.footer-col ul a:hover{color:var(--amber);}
+.footer-bottom{border-top:1px solid var(--border);padding-top:28px;display:flex;justify-content:space-between;align-items:center;}
+.footer-copy{font-size:11px;color:var(--muted);}
+.footer-copy span{color:var(--amber);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:30px;right:30px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:12px;z-index:2000;transform:translateY(80px);opacity:0;transition:all .4s;max-width:300px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-icon{font-size:20px;}
+.toast-msg{font-size:13px;color:var(--cream);line-height:1.4;}
+.toast.success{border-color:rgba(76,175,80,.3);}
+.toast.error{border-color:rgba(224,80,80,.3);}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+@keyframes scrollLine{0%{transform:scaleY(0);transform-origin:top;opacity:1}50%{transform:scaleY(1);transform-origin:top;opacity:1}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom;opacity:0}}
+@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes spinAnim{to{transform:rotate(360deg)}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+/* ── WALLET EXTRAS ── */
+.wallet-option-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.wallet-spinner{width:18px;height:18px;border:2px solid rgba(212,148,90,.2);border-top-color:var(--amber);border-radius:50%;display:none;}
+.wallet-spinner.spin{display:block;animation:spinAnim .7s linear infinite;}
+.wallet-option.loading{pointer-events:none;opacity:.7;}
+.wallet-option.success-state{border-color:rgba(76,175,80,.3);background:rgba(76,175,80,.05);}
+.wallet-install-hint{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(212,148,90,.05);border:1px dashed rgba(212,148,90,.2);border-radius:12px;margin-top:-6px;}
+.wallet-install-hint.show{display:flex;}
+.wallet-install-hint span{font-size:13px;color:var(--muted);}
+.wallet-install-hint a{font-size:12px;font-weight:600;color:var(--amber);text-decoration:none;letter-spacing:.05em;}
+.wallet-disconnect-btn{width:100%;margin-top:12px;padding:11px;background:rgba(224,80,80,.08);border:1px solid rgba(224,80,80,.2);border-radius:100px;color:var(--red);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;cursor:none;transition:all .3s;}
+.wallet-disconnect-btn:hover{background:rgba(224,80,80,.15);}
+.wallet-privacy{margin-top:16px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.03em;}
+/* ── DIGITAL IDENTITY ── */
+#identity{background:var(--bg2);}
+.identity-inner{max-width:1200px;margin:0 auto;}
+.identity-layout{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:flex-start;}
+.id-form-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:24px;padding:32px;}
+.id-form-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--cream);margin-bottom:22px;display:flex;align-items:center;gap:10px;}
+.id-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.id-form-group{display:flex;flex-direction:column;gap:5px;}
+.id-form-group.full{grid-column:span 2;}
+.id-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.id-input,.id-select,.id-textarea{background:rgba(240,230,211,.04);border:1px solid var(--border);border-radius:12px;padding:10px 14px;color:var(--cream);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:all .3s;width:100%;}
+.id-input:focus,.id-select:focus,.id-textarea:focus{border-color:rgba(212,148,90,.4);background:rgba(212,148,90,.03);}
+.id-input::placeholder,.id-textarea::placeholder{color:var(--muted);}
+.id-select{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6355' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+.id-select option{background:var(--bg3);color:var(--cream);}
+.id-textarea{resize:vertical;min-height:72px;}
+.id-radio-group{display:flex;gap:8px;flex-wrap:wrap;}
+.id-radio{display:none;}
+.id-radio-label{padding:7px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .3s;user-select:none;}
+.id-radio:checked+.id-radio-label{background:var(--amber);border-color:var(--amber);color:#080808;}
+.id-health-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.id-check{display:flex;align-items:center;gap:7px;cursor:pointer;}
+.id-check input[type=checkbox]{accent-color:var(--amber);width:14px;height:14px;cursor:pointer;flex-shrink:0;}
+.id-check-label{font-size:12px;color:var(--muted);cursor:pointer;}
+.id-submit{width:100%;margin-top:18px;background:var(--amber);color:#080808;border:none;padding:13px;border-radius:100px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:none;transition:all .3s;}
+.id-submit:hover{background:var(--amber2);transform:translateY(-2px);box-shadow:0 10px 30px rgba(212,148,90,.3);}
+/* Pet ID Cards */
+.id-cards-header{display:flex;align-items:center;margin-bottom:20px;}
+.id-cards-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--cream);}
+.id-count-badge{background:var(--amber);color:#080808;border-radius:100px;padding:2px 9px;font-size:11px;font-weight:700;margin-left:10px;}
+.id-cards-wrap{display:flex;flex-direction:column;gap:14px;max-height:680px;overflow-y:auto;padding-right:4px;}
+.id-cards-wrap::-webkit-scrollbar{width:3px;}.id-cards-wrap::-webkit-scrollbar-thumb{background:var(--amber);border-radius:3px;}
+.id-empty{text-align:center;padding:50px 20px;color:var(--muted);font-size:13px;}
+.id-empty-icon{font-size:36px;margin-bottom:10px;}
+.pet-id-card{background:var(--bg3);border:1px solid var(--border);border-radius:18px;padding:22px;transition:all .3s;animation:fadeUp .4s ease both;}
+.pet-id-card:hover{border-color:rgba(212,148,90,.2);}
+.pet-id-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.pet-id-avatar{width:48px;height:48px;border-radius:12px;background:rgba(212,148,90,.1);border:1px solid rgba(212,148,90,.15);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.pet-id-name{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--cream);line-height:1;}
+.pet-id-species{font-size:10px;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+.pet-id-actions{display:flex;gap:5px;}
+.pet-id-edit,.pet-id-del{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:13px;cursor:none;display:flex;align-items:center;justify-content:center;transition:all .3s;}
+.pet-id-edit:hover{border-color:rgba(212,148,90,.3);color:var(--amber);}
+.pet-id-del:hover{border-color:rgba(224,80,80,.3);color:var(--red);}
+.pet-id-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px;}
+.pet-id-stat{background:var(--bg2);border-radius:9px;padding:9px 10px;text-align:center;}
+.pet-id-stat-val{font-size:13px;font-weight:600;color:var(--cream);line-height:1.2;}
+.pet-id-stat-lbl{font-size:9px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-top:2px;}
+.pet-id-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.pet-id-tag{padding:3px 9px;background:rgba(212,148,90,.08);border:1px solid rgba(212,148,90,.15);border-radius:100px;font-size:10px;color:var(--amber2);letter-spacing:.04em;}
+.pet-id-tag.health{background:rgba(76,175,80,.08);border-color:rgba(76,175,80,.2);color:#6ECF72;}
+.pet-id-note{font-size:12px;color:var(--muted);line-height:1.5;padding-top:10px;border-top:1px solid var(--border);}
+/* ── ABOUT CLICKABLE ── */
+.about-list-clickable{cursor:none;transition:all .3s;}
+.about-list-clickable:hover{background:rgba(212,148,90,.06);border-color:rgba(212,148,90,.25);transform:translateX(4px);}
+.about-list-arrow{font-size:18px;flex-shrink:0;opacity:.6;transition:opacity .3s;}
+.about-list-clickable:hover .about-list-arrow{opacity:1;}
+/* ── ONCHAIN BADGE ── */
+.onchain-live-badge{display:flex;align-items:center;gap:5px;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.25);border-radius:100px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;color:#6ECF72;flex-shrink:0;}
+.onchain-dot{width:6px;height:6px;border-radius:50%;background:#6ECF72;animation:pulse 2s infinite;}
+/* ── BULLDOG CARD ── */
+.bulldog-card{background:var(--bg);border:1px solid rgba(212,148,90,.15);border-radius:16px;padding:18px;width:100%;}
+.bulldog-card-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.bulldog-avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,rgba(212,148,90,.2),rgba(212,148,90,.05));border:1px solid rgba(212,148,90,.2);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.bulldog-name{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--cream);line-height:1;}
+.bulldog-breed{font-size:10px;color:var(--amber);letter-spacing:.06em;margin-top:2px;}
+.bulldog-verified{margin-left:auto;font-size:11px;font-weight:600;color:#6ECF72;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.2);border-radius:100px;padding:3px 10px;flex-shrink:0;}
+.bulldog-chain-info{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.bulldog-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(240,230,211,.04);}
+.bulldog-lbl{font-size:10px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;}
+.bulldog-val{font-size:11px;color:var(--cream);font-weight:500;}
+.bulldog-val.mono,.mono{font-family:monospace;font-size:10px;color:var(--amber2);}
+.bulldog-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
+.bulldog-tag{padding:3px 9px;background:rgba(76,175,80,.07);border:1px solid rgba(76,175,80,.15);border-radius:100px;font-size:10px;color:#6ECF72;}
+.bulldog-footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);}
+.bulldog-price-lbl{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+.bulldog-price{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--amber);}
+/* ── REGISTRATION MODALS ── */
+.reg-modal{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:36px;width:480px;max-width:92vw;position:relative;transform:translateY(20px);transition:transform .3s;max-height:90vh;overflow-y:auto;}
+.reg-modal::-webkit-scrollbar{width:3px;}.reg-modal::-webkit-scrollbar-thumb{background:var(--amber);border-radius:3px;}
+.modal-overlay.open .reg-modal{transform:translateY(0);}
+.reg-modal-icon{font-size:36px;margin-bottom:12px;}
+.reg-modal-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:var(--cream);margin-bottom:6px;}
+.reg-modal-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.reg-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.reg-form-group{display:flex;flex-direction:column;gap:5px;}
+.reg-form-group.full{grid-column:span 2;}
+.reg-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.reg-input,.reg-select,.reg-textarea{background:rgba(240,230,211,.04);border:1px solid var(--border);border-radius:12px;padding:10px 14px;color:var(--cream);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:all .3s;width:100%;}
+.reg-input:focus,.reg-select:focus,.reg-textarea:focus{border-color:rgba(212,148,90,.4);}
+.reg-input::placeholder,.reg-textarea::placeholder{color:var(--muted);}
+.reg-select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6355' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+.reg-select option{background:var(--bg3);color:var(--cream);}
+.reg-textarea{resize:vertical;min-height:72px;}
+.reg-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.reg-check{display:flex;align-items:center;gap:7px;cursor:pointer;}
+.reg-check input{accent-color:var(--amber);width:14px;height:14px;cursor:pointer;}
+.reg-check span{font-size:12px;color:var(--muted);}
+.reg-submit{width:100%;background:var(--amber);color:#080808;border:none;padding:14px;border-radius:100px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:none;transition:all .3s;margin-top:4px;}
+.reg-submit:hover{background:var(--amber2);transform:translateY(-2px);box-shadow:0 10px 30px rgba(212,148,90,.3);}
+.reg-divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+.reg-success{display:none;text-align:center;padding:20px 0;}
+.reg-success-icon{font-size:48px;margin-bottom:12px;}
+.reg-success-title{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--cream);margin-bottom:8px;}
+.reg-success-sub{font-size:13px;color:var(--muted);line-height:1.6;}
+.reg-success-hash{font-family:monospace;font-size:11px;color:var(--amber2);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-top:12px;word-break:break-all;}
+
+/* ── WHITEPAPER MODAL ── */
+.wp-modal{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:44px;width:680px;max-width:92vw;position:relative;transform:translateY(20px);transition:transform .3s;max-height:88vh;overflow-y:auto;}
+.wp-modal::-webkit-scrollbar{width:3px;}.wp-modal::-webkit-scrollbar-thumb{background:var(--amber);border-radius:3px;}
+.modal-overlay.open .wp-modal{transform:translateY(0);}
+.wp-eyebrow{font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
+.wp-title{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:500;color:var(--cream);margin-bottom:18px;line-height:1.15;}
+.wp-tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;line-height:1.5;color:var(--amber2);border-left:2px solid var(--amber);padding:4px 0 4px 18px;margin-bottom:32px;}
+.wp-section{margin-bottom:26px;}
+.wp-section h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--cream);margin-bottom:10px;display:flex;align-items:center;gap:9px;}
+.wp-section h3 span.wp-num{color:var(--amber);font-size:14px;font-family:'Outfit',sans-serif;font-weight:700;}
+.wp-section p{font-size:13.5px;line-height:1.8;color:var(--text);margin-bottom:10px;}
+.wp-section ul{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.wp-section ul li{font-size:13px;line-height:1.6;color:var(--text);padding-left:18px;position:relative;}
+.wp-section ul li::before{content:'—';position:absolute;left:0;color:var(--amber);}
+.wp-section ul li b{color:var(--cream);font-weight:600;}
+.wp-divider{border:none;border-top:1px solid var(--border);margin:28px 0;}
+.wp-footnote{font-size:11px;color:var(--muted);line-height:1.6;margin-top:8px;}
+
+/* ── VALUE RANKING TABLE ── */
+.rank-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
+.rank-table-wrap{display:flex;flex-direction:column;gap:8px;}
+.rank-row{display:grid;grid-template-columns:36px 46px 1fr auto auto;gap:14px;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:12px 16px;transition:all .3s;}
+.rank-row:hover{border-color:rgba(212,148,90,.25);transform:translateX(3px);}
+.rank-pos{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--muted);text-align:center;}
+.rank-row.top1 .rank-pos{color:#F0C64A;}
+.rank-row.top2 .rank-pos{color:#C9C9D4;}
+.rank-row.top3 .rank-pos{color:#D2955A;}
+.rank-icon{width:46px;height:46px;border-radius:12px;background:rgba(212,148,90,.1);display:flex;align-items:center;justify-content:center;font-size:24px;}
+.rank-name{font-size:14px;font-weight:600;color:var(--cream);}
+.rank-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.rank-badges{display:flex;gap:4px;font-size:12px;}
+.rank-score{text-align:right;}
+.rank-score-val{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--amber);font-weight:600;line-height:1;}
+.rank-score-lbl{font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+.rank-note{font-size:11px;color:var(--muted);line-height:1.6;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
+
+/* ── COMMUNITY MEMBERS LIST ── */
+.member-count-badge{font-size:11px;color:var(--amber2);font-weight:600;margin-bottom:10px;letter-spacing:.04em;}
+.member-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(240,230,211,.04);}
+.member-row:last-child{border-bottom:none;}
+.member-avatar{width:38px;height:38px;border-radius:50%;background:rgba(212,148,90,.15);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--amber2);flex-shrink:0;}
+.member-info{flex:1;min-width:0;}
+.member-name{font-size:13px;font-weight:600;color:var(--cream);}
+.member-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.member-empty{text-align:center;padding:20px 10px;color:var(--muted);font-size:12px;line-height:1.6;}
+</style>
+</head>
+<body>
+<script>
+// Clickjacking protection: escape if this page is loaded inside a frame on another origin
+if (window.top !== window.self) {
+  try { window.top.location = window.self.location.href; }
+  catch(e) { document.documentElement.style.display = 'none'; }
+}
+</script>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- WALLET MODAL -->
+<div class="modal-overlay" id="walletModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('walletModal')">×</button>
+    <div class="modal-title" data-tr="Cüzdan Bağla" data-en="Connect Wallet">Cüzdan Bağla</div>
+    <div class="modal-sub" data-tr="Platformumuza erişmek için cüzdanınızı seçin" data-en="Choose your wallet to access our platform">Platformumuza erişmek için cüzdanınızı seçin</div>
+    <div class="wallet-options">
+      <!-- MetaMask -->
+      <div class="wallet-option" id="mmOption" onclick="connectWallet('metamask')">
+        <div class="wallet-option-icon wallet-option-mm">🦊</div>
+        <div class="wallet-option-info">
+          <h3>MetaMask</h3>
+          <p id="mmDesc" data-tr="Ethereum & EVM Ağları" data-en="Ethereum & EVM Networks">Ethereum & EVM Ağları</p>
+        </div>
+        <div class="wallet-option-right">
+          <div class="wallet-spinner" id="mmSpinner"></div>
+          <div class="wallet-option-arrow" id="mmArrow">→</div>
+        </div>
+      </div>
+      <div class="wallet-install-hint" id="mmInstall">
+        <span>🦊 MetaMask</span>
+        <a href="https://metamask.io/download/" target="_blank" rel="noopener noreferrer" data-tr="İndir →" data-en="Install →">İndir →</a>
+      </div>
+      <!-- Keplr -->
+      <div class="wallet-option" id="keplrOption" onclick="connectWallet('keplr')">
+        <div class="wallet-option-icon wallet-option-keplr">⚛️</div>
+        <div class="wallet-option-info">
+          <h3>Keplr Wallet</h3>
+          <p id="keplrDesc" data-tr="Cosmos Ekosistemi" data-en="Cosmos Ecosystem">Cosmos Ekosistemi</p>
+        </div>
+        <div class="wallet-option-right">
+          <div class="wallet-spinner" id="keplrSpinner"></div>
+          <div class="wallet-option-arrow" id="keplrArrow">→</div>
+        </div>
+      </div>
+      <div class="wallet-install-hint" id="keplrInstall">
+        <span>⚛️ Keplr Wallet</span>
+        <a href="https://www.keplr.app/download" target="_blank" rel="noopener noreferrer" data-tr="İndir →" data-en="Install →">İndir →</a>
+      </div>
+    </div>
+    <!-- Connected State -->
+    <div class="wallet-status" id="walletStatus">
+      <div class="wallet-status-icon">✅</div>
+      <div>
+        <div class="wallet-status-txt" id="walletStatusTxt"></div>
+        <div class="wallet-status-addr" id="walletStatusAddr"></div>
+      </div>
+    </div>
+    <!-- Disconnect button -->
+    <button class="wallet-disconnect-btn" id="walletDisconnectBtn" onclick="disconnectWallet()" style="display:none" data-tr="Bağlantıyı Kes" data-en="Disconnect">Bağlantıyı Kes</button>
+    <div class="wallet-privacy" data-tr="🔒 Cüzdanınıza hiçbir zaman tam erişim talep edilmez." data-en="🔒 Full wallet access is never requested.">🔒 Cüzdanınıza hiçbir zaman tam erişim talep edilmez.</div>
+  </div>
+</div>
+
+<!-- BUY MODAL -->
+<div class="modal-overlay" id="buyModal">
+  <div class="buy-modal">
+    <button class="modal-close" onclick="closeModal('buyModal')">×</button>
+    <div class="modal-title" data-tr="NFT Satın Al" data-en="Purchase NFT">NFT Satın Al</div>
+    <div class="buy-nft-preview">
+      <img id="buyNftImg" class="buy-nft-img" src="" alt="">
+      <div>
+        <div class="buy-nft-name" id="buyNftName"></div>
+        <div class="buy-nft-sub" id="buyNftSub"></div>
+      </div>
+    </div>
+    <div class="buy-detail-row">
+      <span class="buy-detail-label" data-tr="NFT Fiyatı" data-en="NFT Price">NFT Fiyatı</span>
+      <span class="buy-detail-val" id="buyNftPrice"></span>
+    </div>
+    <div class="buy-detail-row">
+      <span class="buy-detail-label" data-tr="Ağ Ücreti" data-en="Network Fee">Ağ Ücreti</span>
+      <span class="buy-detail-val" id="buyNftFee">~10 $RIALO</span>
+    </div>
+    <div class="buy-detail-row">
+      <span class="buy-detail-label" data-tr="Toplam" data-en="Total">Toplam</span>
+      <span class="buy-detail-val buy-total" id="buyNftTotal"></span>
+    </div>
+    <div class="buy-actions">
+      <button class="buy-cancel" onclick="closeModal('buyModal')" data-tr="Vazgeç" data-en="Cancel">Vazgeç</button>
+      <button class="buy-confirm" onclick="confirmBuy()" data-tr="Onayla & Satın Al" data-en="Confirm & Buy">Onayla & Satın Al</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUY TOKEN MODAL -->
+<div class="modal-overlay" id="tokenBuyModal">
+  <div class="buy-modal">
+    <button class="modal-close" onclick="closeModal('tokenBuyModal')">×</button>
+    <div class="modal-title" data-tr="Token Satın Al" data-en="Buy Token">Token Satın Al</div>
+    <div class="buy-nft-preview">
+      <div class="buy-token-icon" id="tbIcon" style="background:rgba(212,148,90,.12)"></div>
+      <div>
+        <div class="buy-nft-name" id="tbName"></div>
+        <div class="buy-nft-sub" id="tbSub"></div>
+      </div>
+    </div>
+    <div class="buy-qty-row">
+      <input type="number" id="tbQty" value="100" min="1" step="1" oninput="updateTokenBuyTotal()">
+      <span class="buy-detail-label" data-tr="adet" data-en="tokens">adet</span>
+    </div>
+    <div class="buy-detail-row">
+      <span class="buy-detail-label" data-tr="Birim Fiyat" data-en="Unit Price">Birim Fiyat</span>
+      <span class="buy-detail-val" id="tbPrice"></span>
+    </div>
+    <div class="buy-detail-row">
+      <span class="buy-detail-label" data-tr="Ağ Ücreti" data-en="Network Fee">Ağ Ücreti</span>
+      <span class="buy-detail-val" id="tbFee">~10 $RIALO</span>
+    </div>
+    <div class="buy-detail-row">
+      <span class="buy-detail-label" data-tr="Toplam" data-en="Total">Toplam</span>
+      <span class="buy-detail-val buy-total" id="tbTotal"></span>
+    </div>
+    <div class="buy-actions">
+      <button class="buy-cancel" onclick="closeModal('tokenBuyModal')" data-tr="Vazgeç" data-en="Cancel">Vazgeç</button>
+      <button class="buy-confirm" onclick="confirmTokenBuy()" data-tr="Onayla & Satın Al" data-en="Confirm & Buy">Onayla & Satın Al</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMMUNITY MODAL -->
+<div class="modal-overlay" id="communityModal">
+  <div class="reg-modal">
+    <button class="modal-close" onclick="closeModal('communityModal')">×</button>
+    <!-- Form View -->
+    <div id="communityForm">
+      <div class="reg-modal-icon">🌍</div>
+      <div class="reg-modal-title" data-tr="Topluluğa Katıl" data-en="Join the Community">Topluluğa Katıl</div>
+      <div class="reg-modal-sub" data-tr="Rialo PetVerse DAO'suna katılın. Dünya genelindeki evcil hayvan sahipleriyle bağlantı kurun, oy kullanın ve ekosistemi birlikte şekillendirin." data-en="Join the Rialo PetVerse DAO. Connect with pet owners worldwide, vote, and shape the ecosystem together.">Rialo PetVerse DAO'suna katılın. Dünya genelindeki evcil hayvan sahipleriyle bağlantı kurun, oy kullanın ve ekosistemi birlikte şekillendirin.</div>
+      <div class="reg-form-grid">
+        <div class="reg-form-group">
+          <label class="reg-label" data-tr="Ad *" data-en="First Name *">Ad *</label>
+          <input class="reg-input" id="com-fname" type="text" data-placeholder-tr="Adınız" data-placeholder-en="Your first name" placeholder="Adınız">
+        </div>
+        <div class="reg-form-group">
+          <label class="reg-label" data-tr="Soyad *" data-en="Last Name *">Soyad *</label>
+          <input class="reg-input" id="com-lname" type="text" data-placeholder-tr="Soyadınız" data-placeholder-en="Your last name" placeholder="Soyadınız">
+        </div>
+        <div class="reg-form-group full">
+          <label class="reg-label" data-tr="E-posta *" data-en="Email *">E-posta *</label>
+          <input class="reg-input" id="com-email" type="email" placeholder="ornek@email.com">
+        </div>
+        <div class="reg-form-group">
+          <label class="reg-label" data-tr="Ülke" data-en="Country">Ülke</label>
+          <select class="reg-select" id="com-country">
+            <option value="">Seç...</option>
+            <option value="TR">🇹🇷 Türkiye</option>
+            <option value="US">🇺🇸 United States</option>
+            <option value="DE">🇩🇪 Germany</option>
+            <option value="GB">🇬🇧 United Kingdom</option>
+            <option value="FR">🇫🇷 France</option>
+            <option value="JP">🇯🇵 Japan</option>
+            <option value="KR">🇰🇷 South Korea</option>
+            <option value="OTHER">🌍 Diğer / Other</option>
+          </select>
+        </div>
+        <div class="reg-form-group">
+          <label class="reg-label" data-tr="Evcil Hayvan Sayısı" data-en="Number of Pets">Evcil Hayvan Sayısı</label>
+          <select class="reg-select" id="com-petcount">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4+">4+</option>
+            <option value="0" data-tr="Henüz yok" data-en="None yet">Henüz yok</option>
+          </select>
+        </div>
+        <div class="reg-form-group full">
+          <label class="reg-label" data-tr="Cüzdan Adresi" data-en="Wallet Address">Cüzdan Adresi</label>
+          <input class="reg-input" id="com-wallet" type="text" placeholder="0x... veya cosmos1..." style="font-family:monospace;font-size:11px;">
+        </div>
+        <div class="reg-form-group full">
+          <label class="reg-label" data-tr="İlgi Alanları" data-en="Interests">İlgi Alanları</label>
+          <div class="reg-checks">
+            <label class="reg-check"><input type="checkbox" id="com-nft"><span data-tr="🖼️ NFT Koleksiyonu" data-en="🖼️ NFT Collecting">🖼️ NFT Koleksiyonu</span></label>
+            <label class="reg-check"><input type="checkbox" id="com-dao"><span data-tr="🗳️ DAO Yönetimi" data-en="🗳️ DAO Governance">🗳️ DAO Yönetimi</span></label>
+            <label class="reg-check"><input type="checkbox" id="com-stake"><span data-tr="💰 Staking" data-en="💰 Staking">💰 Staking</span></label>
+            <label class="reg-check"><input type="checkbox" id="com-rwa"><span data-tr="🏷️ RWA Tokenizasyon" data-en="🏷️ RWA Tokenization">🏷️ RWA Tokenizasyon</span></label>
+          </div>
+        </div>
+        <div class="reg-form-group full">
+          <label class="reg-label" data-tr="Kendinizi Kısaca Tanıtın" data-en="Tell Us About Yourself">Kendinizi Kısaca Tanıtın</label>
+          <textarea class="reg-textarea" id="com-bio" data-placeholder-tr="Evcil hayvanlarınız, Web3 deneyiminiz..." data-placeholder-en="Your pets, Web3 experience..." placeholder="Evcil hayvanlarınız, Web3 deneyiminiz..."></textarea>
+        </div>
+      </div>
+      <button class="reg-submit" onclick="submitCommunity()" data-tr="🌍 Topluluğa Katıl" data-en="🌍 Join the Community">🌍 Topluluğa Katıl</button>
+    </div>
+    <!-- Success View -->
+    <div class="reg-success" id="communitySuccess">
+      <div class="reg-success-icon">🎊</div>
+      <div class="reg-success-title" data-tr="Hoş Geldin!" data-en="Welcome!">Hoş Geldin!</div>
+      <div class="reg-success-sub" id="communitySuccessTxt" data-tr="PetVerse topluluğuna katıldın! DAO oylamalarına katılabilir ve ekosistemi şekillendirebilirsin." data-en="You've joined the PetVerse community! You can now participate in DAO votes and shape the ecosystem.">PetVerse topluluğuna katıldın!</div>
+      <div class="reg-success-hash" id="communityHash"></div>
+      <button class="reg-submit" style="margin-top:20px" onclick="closeModal('communityModal');resetCommunityForm()" data-tr="✓ Kapat" data-en="✓ Close">✓ Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- ANNOUNCEMENT MODAL -->
+<div class="modal-overlay" id="announcementModal">
+  <div class="reg-modal">
+    <button class="modal-close" onclick="closeModal('announcementModal')">×</button>
+    <div class="reg-modal-icon">📣</div>
+    <div class="reg-modal-title" data-tr="Duyuru" data-en="Announcement">Duyuru</div>
+    <div class="reg-modal-sub" data-tr="Rialo yürütmeyi, Latch ise güveni sağlayarak doğrulanabilir ajan ekonomisinin temelini oluşturuyor." data-en="Rialo provides execution, while Latch provides trust — together forming the foundation of a verifiable agent economy.">Rialo yürütmeyi, Latch ise güveni sağlayarak doğrulanabilir ajan ekonomisinin temelini oluşturuyor.</div>
+    <a href="https://latch-beta.rialo.io/dashboard" target="_blank" rel="noopener noreferrer" class="reg-submit" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box;">🔗 latch-beta.rialo.io/dashboard</a>
+  </div>
+</div>
+
+<!-- VALUE RANKING MODAL -->
+<div class="modal-overlay" id="valueRankModal">
+  <div class="wp-modal">
+    <button class="modal-close" onclick="closeModal('valueRankModal')">×</button>
+    <div class="wp-eyebrow" data-tr="RWA Değer Motoru" data-en="RWA Value Engine">RWA Değer Motoru</div>
+    <div class="wp-title" data-tr="Değer Sıralaması" data-en="Value Ranking">Değer Sıralaması</div>
+    <div class="wp-tagline" data-tr="Sisteme kayıtlı evcil hayvanlar; yaş, sağlık durumu ve kayıt geçmişine göre otomatik olarak puanlanır ve sıralanır." data-en="Pets registered in the system are automatically scored and ranked based on age, health status and record history.">Sisteme kayıtlı evcil hayvanlar; yaş, sağlık durumu ve kayıt geçmişine göre otomatik olarak puanlanır ve sıralanır.</div>
+    <div id="rankTableWrap"></div>
+    <div class="rank-note" data-tr="Puanlama; aşı, mikroçip, sigorta, kısırlaştırma durumu, güncel veteriner kontrolü, kayıtlı sağlık geçmişi ve yaş faktörünü baz alan otomatik bir modeldir. Yeni bir evcil hayvan kaydedildiğinde veya sağlık kaydı eklendiğinde sıralama anında güncellenir." data-en="Scoring is an automated model based on vaccination, microchip, insurance, neutering status, recent vet checkups, logged health history and age. The ranking updates instantly whenever a new pet or health record is added.">Puanlama; aşı, mikroçip, sigorta, kısırlaştırma durumu, güncel veteriner kontrolü, kayıtlı sağlık geçmişi ve yaş faktörünü baz alan otomatik bir modeldir. Yeni bir evcil hayvan kaydedildiğinde veya sağlık kaydı eklendiğinde sıralama anında güncellenir.</div>
+  </div>
+</div>
+
+<!-- WHITEPAPER MODAL -->
+<div class="modal-overlay" id="whitepaperModal">
+  <div class="wp-modal">
+    <button class="modal-close" onclick="closeModal('whitepaperModal')">×</button>
+
+    <div class="wp-eyebrow" data-tr="Teknik Doküman" data-en="Technical Document">Teknik Doküman</div>
+    <div class="wp-title" data-tr="Rialo PetVerse Whitepaper" data-en="Rialo PetVerse Whitepaper">Rialo PetVerse Whitepaper</div>
+    <div class="wp-tagline" data-tr="Rialo PetVerse evcil hayvanınızı zincire taşır ve onu ölümsüzleştirmenizi sağlar." data-en="Rialo PetVerse carries your pet onto the chain and lets you make it immortal.">Rialo PetVerse evcil hayvanınızı zincire taşır ve onu ölümsüzleştirmenizi sağlar.</div>
+
+    <div class="wp-section">
+      <h3><span class="wp-num">01</span><span data-tr="Vizyon" data-en="Vision">Vizyon</span></h3>
+      <p data-tr="Rialo PetVerse, gerçek dünyadaki evcil hayvan sahipliğini blockchain'in kalıcılığıyla birleştiren bir Web3 ekosistemidir. Her evcil hayvan; adı, geçmişi, sağlığı ve kişiliğiyle birlikte silinemez, değiştirilemez bir dijital kimliğe kavuşur." data-en="Rialo PetVerse is a Web3 ecosystem that merges real-world pet ownership with the permanence of the blockchain. Every pet — its name, history, health and personality — gains an immutable, unforgeable digital identity.">Rialo PetVerse, gerçek dünyadaki evcil hayvan sahipliğini blockchain'in kalıcılığıyla birleştiren bir Web3 ekosistemidir. Her evcil hayvan; adı, geçmişi, sağlığı ve kişiliğiyle birlikte silinemez, değiştirilemez bir dijital kimliğe kavuşur.</p>
+      <p data-tr="Amacımız, bir evcil hayvanla kurulan bağın ötesine geçip bu bağı zincir üzerinde sonsuza dek belgelemek; sahiplik, sağlık geçmişi ve anıları tek bir merkezi sunucuya değil, dağıtık bir ağa emanet etmektir." data-en="Our goal is to go beyond the bond you share with a pet and document that bond on-chain forever — entrusting ownership, health history and memories to a distributed network rather than a single central server.">Amacımız, bir evcil hayvanla kurulan bağın ötesine geçip bu bağı zincir üzerinde sonsuza dek belgelemek; sahiplik, sağlık geçmişi ve anıları tek bir merkezi sunucuya değil, dağıtık bir ağa emanet etmektir.</p>
+    </div>
+
+    <div class="wp-section">
+      <h3><span class="wp-num">02</span><span data-tr="Dijital Kimlik Katmanı" data-en="Digital Identity Layer">Dijital Kimlik Katmanı</span></h3>
+      <p data-tr="Her kayıt, ERC-721 standardında benzersiz bir token olarak mint edilir. Metadata; tür, ırk, yaş, kilo, renk, sahiplik geçmişi ve sağlık kayıtlarını kapsar ve IPFS üzerinde saklanır, böylece tek bir sunucuya bağımlı kalmaz." data-en="Every record is minted as a unique ERC-721 token. Metadata covers species, breed, age, weight, color, ownership history and health records, and is stored on IPFS so it never depends on a single server.">Her kayıt, ERC-721 standardında benzersiz bir token olarak mint edilir. Metadata; tür, ırk, yaş, kilo, renk, sahiplik geçmişi ve sağlık kayıtlarını kapsar ve IPFS üzerinde saklanır, böylece tek bir sunucuya bağımlı kalmaz.</p>
+      <ul>
+        <li data-tr="Benzersiz Token ID — her kimlik, tekrarlanamaz bir zincir üstü kayıt numarası taşır." data-en="Unique Token ID — every identity carries a non-repeatable on-chain record number.">Benzersiz Token ID — her kimlik, tekrarlanamaz bir zincir üstü kayıt numarası taşır.</li>
+        <li data-tr="Değişmez geçmiş — aşı, mikroçip ve veteriner kayıtları sonradan silinemez, yalnızca eklenebilir." data-en="Immutable history — vaccine, microchip and vet records can only be appended, never deleted.">Değişmez geçmiş — aşı, mikroçip ve veteriner kayıtları sonradan silinemez, yalnızca eklenebilir.</li>
+        <li data-tr="Taşınabilir sahiplik — kimlik cüzdandan cüzdana devredilebilir; sahiplik geçmişi şeffaf kalır." data-en="Portable ownership — the identity can be transferred wallet to wallet while ownership history stays transparent.">Taşınabilir sahiplik — kimlik cüzdandan cüzdana devredilebilir; sahiplik geçmişi şeffaf kalır.</li>
+      </ul>
+    </div>
+
+    <div class="wp-section">
+      <h3><span class="wp-num">03</span><span data-tr="RWA Tokenizasyon Motoru" data-en="RWA Tokenization Engine">RWA Tokenizasyon Motoru</span></h3>
+      <p data-tr="PetVerse, evcil hayvanın gerçek dünyadaki ekonomik değerini — ırk nadirliği, sağlık durumu ve sahiplik geçmişi — algoritmik bir değerleme modeliyle zincire taşır. Bu değer, NFT'nin piyasa fiyatına ve staking ağırlığına gerçek zamanlı olarak yansır." data-en="PetVerse carries a pet's real-world economic value — breed rarity, health status and ownership history — onto the chain through an algorithmic valuation model. This value is reflected in real time in the NFT's market price and staking weight.">PetVerse, evcil hayvanın gerçek dünyadaki ekonomik değerini — ırk nadirliği, sağlık durumu ve sahiplik geçmişi — algoritmik bir değerleme modeliyle zincire taşır. Bu değer, NFT'nin piyasa fiyatına ve staking ağırlığına gerçek zamanlı olarak yansır.</p>
+    </div>
+
+    <div class="wp-section">
+      <h3><span class="wp-num">04</span><span data-tr="Ekosistem Tokenları & Staking" data-en="Ecosystem Tokens & Staking">Ekosistem Tokenları & Staking</span></h3>
+      <p data-tr="Ekosistem, tür bazlı beş utility token etrafında şekillenir: $WOOF, $MEOW, $CHIRP, $HOP ve $NEMO. Kullanıcılar sahip oldukları evcil hayvan kategorisine göre stake ederek ödül kazanır; yönetişim tokenı $RIALO ise tüm ekosistemi bir arada tutan katmandır." data-en="The ecosystem is built around five species-based utility tokens: $WOOF, $MEOW, $CHIRP, $HOP and $NEMO. Users earn rewards by staking according to their pet category, while the governance token $RIALO is the layer that ties the whole ecosystem together.">Ekosistem, tür bazlı beş utility token etrafında şekillenir: $WOOF, $MEOW, $CHIRP, $HOP ve $NEMO. Kullanıcılar sahip oldukları evcil hayvan kategorisine göre stake ederek ödül kazanır; yönetişim tokenı $RIALO ise tüm ekosistemi bir arada tutan katmandır.</p>
+    </div>
+
+    <div class="wp-section">
+      <h3><span class="wp-num">05</span><span data-tr="DAO Yönetişimi" data-en="DAO Governance">DAO Yönetişimi</span></h3>
+      <p data-tr="Platformun geleceği; token dağıtımı, yeni tür entegrasyonları ve pazar kuralları gibi konularda topluluk oylamasıyla belirlenir. Her $RIALO bir oy ağırlığı temsil eder ve teklifler zincir üzerinde şeffaf biçimde kayıt altına alınır." data-en="The platform's future — token distribution, new species integrations, marketplace rules — is decided by community vote. Each $RIALO represents one unit of voting weight, and proposals are recorded transparently on-chain.">Platformun geleceği; token dağıtımı, yeni tür entegrasyonları ve pazar kuralları gibi konularda topluluk oylamasıyla belirlenir. Her $RIALO bir oy ağırlığı temsil eder ve teklifler zincir üzerinde şeffaf biçimde kayıt altına alınır.</p>
+    </div>
+
+    <div class="wp-section">
+      <h3><span class="wp-num">06</span><span data-tr="Güvenlik Mimarisi" data-en="Security Architecture">Güvenlik Mimarisi</span></h3>
+      <p data-tr="PetVerse hiçbir zaman cüzdanınıza tam erişim istemez. MetaMask ve Keplr entegrasyonları yalnızca imza bazlı, kapsamı sınırlı bağlantılar kullanır. Akıllı kontratlar bağımsız denetimden geçirilecek ve açık kaynak olarak yayınlanacaktır." data-en="PetVerse never requests full access to your wallet. MetaMask and Keplr integrations use signature-based connections with strictly limited scope. Smart contracts will undergo independent audits and be published open-source.">PetVerse hiçbir zaman cüzdanınıza tam erişim istemez. MetaMask ve Keplr entegrasyonları yalnızca imza bazlı, kapsamı sınırlı bağlantılar kullanır. Akıllı kontratlar bağımsız denetimden geçirilecek ve açık kaynak olarak yayınlanacaktır.</p>
+    </div>
+
+    <div class="wp-section">
+      <h3><span class="wp-num">07</span><span data-tr="Yol Haritası" data-en="Roadmap">Yol Haritası</span></h3>
+      <ul>
+        <li data-tr="Faz 1 — Dijital kimlik kaydı ve NFT mint altyapısı (Canlı)" data-en="Phase 1 — Digital identity registration and NFT minting infrastructure (Live)">Faz 1 — Dijital kimlik kaydı ve NFT mint altyapısı (Canlı)</li>
+        <li data-tr="Faz 2 — RWA değerleme motoru ve ekosistem tokenlarının lansmanı" data-en="Phase 2 — RWA valuation engine and ecosystem token launch">Faz 2 — RWA değerleme motoru ve ekosistem tokenlarının lansmanı</li>
+        <li data-tr="Faz 3 — DAO oylama modülü ve topluluk hazinesi" data-en="Phase 3 — DAO voting module and community treasury">Faz 3 — DAO oylama modülü ve topluluk hazinesi</li>
+        <li data-tr="Faz 4 — Çoklu zincir genişlemesi ve Rialo ekosistem entegrasyonu" data-en="Phase 4 — Multi-chain expansion and Rialo ecosystem integration">Faz 4 — Çoklu zincir genişlemesi ve Rialo ekosistem entegrasyonu</li>
+      </ul>
+    </div>
+
+    <hr class="wp-divider">
+    <div class="wp-footnote" data-tr="Bu belge bir taslak niteliğindedir, geliştirme sürecinde güncellenebilir ve yatırım tavsiyesi teşkil etmez." data-en="This document is a draft, may be updated during development, and does not constitute investment advice.">Bu belge bir taslak niteliğindedir, geliştirme sürecinde güncellenebilir ve yatırım tavsiyesi teşkil etmez.</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toastIcon"></div>
+  <div class="toast-msg" id="toastMsg"></div>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-left">
+    <div class="nav-logo-img"><img src="data:image/jpeg;base64,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" alt="Rialo"></div>
+    <div>
+      <div class="nav-brand">Rialo <span>PetVerse</span></div>
+    </div>
+  </div>
+  <ul class="nav-center">
+    <li><a href="#about" data-tr="Hakkında" data-en="About">Hakkında</a></li>
+    <li><a href="#identity" data-tr="Dijital Kimlik" data-en="Digital ID">Dijital Kimlik</a></li>
+    <li><a href="#marketplace" data-tr="NFT Pazar" data-en="NFT Market">NFT Pazar</a></li>
+    <li><a href="#tokens" data-tr="Tokenlar" data-en="Tokens">Tokenlar</a></li>
+    <li><a href="#gallery" data-tr="Galeri" data-en="Gallery">Galeri</a></li>
+    <li><a href="#rwa" data-tr="RWA" data-en="RWA">RWA</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-btn" onclick="setLang('tr')">TR</button>
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="wallet-btn" id="walletConnectBtn" onclick="openModal('walletModal')">
+      <div class="wallet-dot" id="walletDot"></div>
+      <span id="walletBtnTxt" data-tr="Cüzdan Bağla" data-en="Connect Wallet">Cüzdan Bağla</span>
+    </button>
+    <a href="#cta" class="nav-cta" data-tr="Katıl" data-en="Join">Katıl</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span data-tr="Web3 × Evcil Hayvan Ekosistemi" data-en="Web3 × Pet Ecosystem">Web3 × Evcil Hayvan Ekosistemi</span>
+    </div>
+    <h1 class="hero-title">
+      <span data-tr="Evcil Hayvanların" data-en="The Digital">Evcil Hayvanların</span>
+      <em data-tr="Dijital Evreni" data-en="Pet Universe">Dijital Evreni</em>
+    </h1>
+    <p class="hero-sub" data-tr="Rialo PetVerse, gerçek dünya varlıklarını (RWA) blockchain teknolojisiyle birleştirerek evcil hayvanlar için benzersiz bir dijital ekosistem yaratıyor." data-en="Rialo PetVerse combines real-world assets (RWA) with blockchain technology to create a unique digital ecosystem for pets.">Rialo PetVerse, gerçek dünya varlıklarını (RWA) blockchain teknolojisiyle birleştirerek evcil hayvanlar için benzersiz bir dijital ekosistem yaratıyor.</p>
+    <div class="hero-actions">
+      <a href="#marketplace" class="btn-primary" data-tr="NFT Keşfet" data-en="Explore NFTs">NFT Keşfet</a>
+      <a href="#rwa" class="btn-outline" data-tr="RWA Nedir?" data-en="What is RWA?">RWA Nedir?</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span data-tr="Kaydır" data-en="Scroll">Kaydır</span>
+  </div>
+</section>
+
+<!-- STATS -->
+<div id="stats">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-num">12<span>K+</span></div>
+      <div class="stat-label" data-tr="Evcil Hayvan NFT" data-en="Pet NFTs">Evcil Hayvan NFT</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">4<span>.8K</span></div>
+      <div class="stat-label" data-tr="Aktif Kullanıcı" data-en="Active Users">Aktif Kullanıcı</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">$<span>2.4M</span></div>
+      <div class="stat-label" data-tr="Toplam Hacim" data-en="Total Volume">Toplam Hacim</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">98<span>%</span></div>
+      <div class="stat-label" data-tr="Memnuniyet" data-en="Satisfaction">Memnuniyet</div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-inner">
+    <div class="reveal">
+      <div class="about-logo-wrap">
+        <img src="data:image/jpeg;base64,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" alt="Rialo Logo">
+        <div class="about-badge">
+          <div class="about-badge-val">RWA</div>
+          <div class="about-badge-lbl">Real World Asset</div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal" style="display:flex;flex-direction:column;gap:20px;">
+      <div class="section-tag" data-tr="Biz Kimiz" data-en="Who We Are">Biz Kimiz</div>
+      <h2 class="section-title"><span data-tr="Evcil Hayvanlar için" data-en="A New Era">Evcil Hayvanlar için</span><br><em data-tr="Yeni Bir Çağ" data-en="for Pets">Yeni Bir Çağ</em></h2>
+      <p class="section-desc" data-tr="Rialo PetVerse, blockchain teknolojisini sevdiğiniz hayvanlarla buluşturan öncü bir ekosistem. Her evcil hayvan, gerçek değeri olan dijital bir varlığa dönüşüyor." data-en="Rialo PetVerse is a pioneering ecosystem that connects blockchain technology with the animals you love. Every pet becomes a digital asset with real value.">Rialo PetVerse, blockchain teknolojisini sevdiğiniz hayvanlarla buluşturan öncü bir ekosistem.</p>
+      <div class="about-list">
+        <!-- Dijital Kimlik -->
+        <div class="about-list-item about-list-clickable" onclick="document.getElementById('identity').scrollIntoView({behavior:'smooth'})" style="cursor:none;">
+          <div class="about-list-icon">🐾</div>
+          <div class="about-list-txt" style="flex:1">
+            <h4 data-tr="Dijital Kimlik" data-en="Digital Identity">Dijital Kimlik</h4>
+            <p data-tr="Her evcil hayvanın benzersiz NFT kimliği ve zincir üstü profili" data-en="Unique NFT identity and on-chain profile for every pet">Her evcil hayvanın benzersiz NFT kimliği</p>
+          </div>
+          <div class="about-list-arrow">📝</div>
+        </div>
+        <!-- Global Topluluk Üyeleri - canlı üye listesi -->
+        <div class="about-list-item" style="flex-direction:column;gap:14px;">
+          <div style="display:flex;gap:14px;align-items:flex-start;width:100%">
+            <div class="about-list-icon">🌍</div>
+            <div class="about-list-txt" style="flex:1">
+              <h4 data-tr="Topluluk Üyeleri" data-en="Community Members">Topluluk Üyeleri</h4>
+              <p data-tr="Global topluluğa katılan gerçek üyeler" data-en="Real members who have joined the global community">Global topluluğa katılan gerçek üyeler</p>
+            </div>
+            <div class="onchain-live-badge"><span class="onchain-dot"></span>LIVE</div>
+          </div>
+          <div class="bulldog-card" id="communityMembersCard"></div>
+        </div>
+        <!-- Global Topluluk -->
+        <div class="about-list-item about-list-clickable" onclick="openModal('communityModal')" style="cursor:none;">
+          <div class="about-list-icon">🌍</div>
+          <div class="about-list-txt" style="flex:1">
+            <h4 data-tr="Global Topluluk" data-en="Global Community">Global Topluluk</h4>
+            <p data-tr="Dünya genelinde evcil hayvan sahipleriyle DAO yapısı" data-en="DAO structure with pet owners from around the world">Dünya genelinde evcil hayvan sahipleriyle DAO yapısı</p>
+          </div>
+          <div class="about-list-arrow">🌐</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+
+<!-- DIGITAL IDENTITY -->
+<section id="identity">
+  <div class="identity-inner">
+    <div class="reveal" style="margin-bottom:40px;">
+      <div class="section-tag" data-tr="Evcil Hayvan Profili" data-en="Pet Profile">Evcil Hayvan Profili</div>
+      <h2 class="section-title"><em data-tr="Dijital Kimlik" data-en="Digital Identity">Dijital Kimlik</em> <span data-tr="Oluştur" data-en="Creator">Oluştur</span></h2>
+      <p class="section-desc" data-tr="Evcil hayvanınızın tüm bilgilerini blockchain'e kaydedin. İsim, yaş, kilo, cins ve sağlık durumunu takip edin." data-en="Record all your pet's information on the blockchain. Track name, age, weight, breed and health status.">Evcil hayvanınızın tüm bilgilerini blockchain'e kaydedin. İsim, yaş, kilo, cins ve sağlık durumunu takip edin.</p>
+    </div>
+    <div class="identity-layout">
+      <!-- FORM -->
+      <div class="id-form-wrap reveal">
+        <div class="id-form-title">🐾 <span data-tr="Profil Ekle / Düzenle" data-en="Add / Edit Profile">Profil Ekle / Düzenle</span></div>
+        <input type="hidden" id="editIndex" value="">
+        <div class="id-form-grid">
+          <!-- Fotoğraf -->
+          <div class="id-form-group full">
+            <label class="id-label" data-tr="Fotoğraf" data-en="Photo">Fotoğraf</label>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <div id="petImgPreview" style="width:64px;height:64px;border-radius:14px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden;flex-shrink:0;">🐾</div>
+              <label for="petImgInput" style="cursor:none;background:rgba(212,148,90,.1);border:1px solid rgba(212,148,90,.3);color:var(--amber2);font-size:12px;font-weight:600;padding:9px 16px;border-radius:100px;white-space:nowrap;" data-tr="📷 Fotoğraf Yükle" data-en="📷 Upload Photo">📷 Fotoğraf Yükle</label>
+              <input type="file" id="petImgInput" accept="image/*" style="display:none;" onchange="handlePetImageUpload(event)">
+              <button type="button" id="petImgClear" style="display:none;background:none;border:none;color:var(--muted);font-size:11px;cursor:none;text-decoration:underline;padding:0;" onclick="clearPetImage()" data-tr="Kaldır" data-en="Remove">Kaldır</button>
+            </div>
+          </div>
+          <!-- İsim -->
+          <div class="id-form-group">
+            <label class="id-label" data-tr="Evcil Hayvan İsmi" data-en="Pet Name">Evcil Hayvan İsmi</label>
+            <input class="id-input" id="petName" type="text" data-placeholder-tr="Örn: Max, Luna..." data-placeholder-en="e.g. Max, Luna..." placeholder="Örn: Max, Luna...">
+          </div>
+          <!-- Tür -->
+          <div class="id-form-group">
+            <label class="id-label" data-tr="Tür" data-en="Species">Tür</label>
+            <select class="id-select" id="petSpecies">
+              <option value="" data-tr="Seç..." data-en="Select...">Seç...</option>
+              <option value="🐕 Köpek" data-tr="🐕 Köpek" data-en="🐕 Dog">🐕 Köpek</option>
+              <option value="🐈 Kedi" data-tr="🐈 Kedi" data-en="🐈 Cat">🐈 Kedi</option>
+              <option value="🦜 Kuş" data-tr="🦜 Kuş" data-en="🦜 Bird">🦜 Kuş</option>
+              <option value="🐇 Tavşan" data-tr="🐇 Tavşan" data-en="🐇 Rabbit">🐇 Tavşan</option>
+              <option value="🐠 Balık" data-tr="🐠 Balık" data-en="🐠 Fish">🐠 Balık</option>
+              <option value="🐹 Hamster" data-tr="🐹 Hamster" data-en="🐹 Hamster">🐹 Hamster</option>
+              <option value="🐷 Domuz" data-tr="🐷 Domuz" data-en="🐷 Pig">🐷 Domuz</option>
+              <option value="🦎 Sürüngen" data-tr="🦎 Sürüngen" data-en="🦎 Reptile">🦎 Sürüngen</option>
+              <option value="🐾 Diğer" data-tr="🐾 Diğer" data-en="🐾 Other">🐾 Diğer</option>
+            </select>
+          </div>
+          <!-- Irk / Cins -->
+          <div class="id-form-group">
+            <label class="id-label" data-tr="Irk / Cins" data-en="Breed">Irk / Cins</label>
+            <input class="id-input" id="petBreed" type="text" data-placeholder-tr="Örn: Golden Retriever" data-placeholder-en="e.g. Golden Retriever" placeholder="Örn: Golden Retriever">
+          </div>
+          <!-- Yaş -->
+          <div class="id-form-group">
+            <label class="id-label" data-tr="Yaş (ay veya yıl)" data-en="Age (months or years)">Yaş</label>
+            <input class="id-input" id="petAge" type="text" data-placeholder-tr="Örn: 2 yıl / 8 ay" data-placeholder-en="e.g. 2 years / 8 months" placeholder="Örn: 2 yıl / 8 ay">
+          </div>
+          <!-- Kilo -->
+          <div class="id-form-group">
+            <label class="id-label" data-tr="Kilo (kg)" data-en="Weight (kg)">Kilo (kg)</label>
+            <input class="id-input" id="petWeight" type="number" step="0.1" min="0" data-placeholder-tr="Örn: 4.5" data-placeholder-en="e.g. 4.5" placeholder="Örn: 4.5">
+          </div>
+          <!-- Renk -->
+          <div class="id-form-group">
+            <label class="id-label" data-tr="Renk / Desen" data-en="Color / Pattern">Renk / Desen</label>
+            <input class="id-input" id="petColor" type="text" data-placeholder-tr="Örn: Sarı, Siyah-Beyaz" data-placeholder-en="e.g. Golden, Black-White" placeholder="Örn: Sarı, Siyah-Beyaz">
+          </div>
+          <!-- Cinsiyet -->
+          <div class="id-form-group full">
+            <label class="id-label" data-tr="Cinsiyet" data-en="Gender">Cinsiyet</label>
+            <div class="id-radio-group">
+              <input type="radio" class="id-radio" name="gender" id="gMale" value="Erkek">
+              <label class="id-radio-label" for="gMale" data-tr="♂ Erkek" data-en="♂ Male">♂ Erkek</label>
+              <input type="radio" class="id-radio" name="gender" id="gFemale" value="Dişi">
+              <label class="id-radio-label" for="gFemale" data-tr="♀ Dişi" data-en="♀ Female">♀ Dişi</label>
+              <input type="radio" class="id-radio" name="gender" id="gUnknown" value="Belirsiz">
+              <label class="id-radio-label" for="gUnknown" data-tr="? Belirsiz" data-en="? Unknown">? Belirsiz</label>
+            </div>
+          </div>
+          <!-- Sağlık Durumu -->
+          <div class="id-form-group full">
+            <label class="id-label" data-tr="Sağlık Durumu" data-en="Health Status">Sağlık Durumu</label>
+            <div class="id-health-checks">
+              <label class="id-check"><input type="checkbox" id="hVaccine"><span class="id-check-label" data-tr="✅ Aşılı" data-en="✅ Vaccinated">✅ Aşılı</span></label>
+              <label class="id-check"><input type="checkbox" id="hNeutered"><span class="id-check-label" data-tr="✅ Kısırlaştırılmış" data-en="✅ Neutered/Spayed">✅ Kısırlaştırılmış</span></label>
+              <label class="id-check"><input type="checkbox" id="hMicrochip"><span class="id-check-label" data-tr="✅ Mikro Çipli" data-en="✅ Microchipped">✅ Mikro Çipli</span></label>
+              <label class="id-check"><input type="checkbox" id="hInsured"><span class="id-check-label" data-tr="✅ Sigortalı" data-en="✅ Insured">✅ Sigortalı</span></label>
+            </div>
+          </div>
+          <!-- Son Veteriner -->
+          <div class="id-form-group">
+            <label class="id-label" data-tr="Son Veteriner Ziyareti" data-en="Last Vet Visit">Son Veteriner Ziyareti</label>
+            <input class="id-input" id="petVetDate" type="date">
+          </div>
+          <!-- Sahip -->
+          <div class="id-form-group">
+            <label class="id-label" data-tr="Sahip Adı" data-en="Owner Name">Sahip Adı</label>
+            <input class="id-input" id="petOwner" type="text" data-placeholder-tr="İsminiz" data-placeholder-en="Your name" placeholder="İsminiz">
+          </div>
+          <!-- Not -->
+          <div class="id-form-group full">
+            <label class="id-label" data-tr="Notlar / Özel Bilgiler" data-en="Notes / Special Info">Notlar / Özel Bilgiler</label>
+            <textarea class="id-textarea" id="petNotes" data-placeholder-tr="Alerjiler, ilaçlar, özel ihtiyaçlar..." data-placeholder-en="Allergies, medications, special needs..." placeholder="Alerjiler, ilaçlar, özel ihtiyaçlar..."></textarea>
+          </div>
+        </div>
+        <button class="id-submit" onclick="savePetProfile()" data-tr="🐾 Profili Kaydet" data-en="🐾 Save Profile">🐾 Profili Kaydet</button>
+      </div>
+      <!-- CARDS -->
+      <div class="reveal">
+        <div class="id-cards-header">
+          <span class="id-cards-title" data-tr="Kayıtlı Profiller" data-en="Saved Profiles">Kayıtlı Profiller</span>
+          <span class="id-count-badge" id="petCount">0</span>
+        </div>
+        <div class="id-cards-wrap" id="petCardsWrap">
+          <div class="id-empty" id="petEmptyState">
+            <div class="id-empty-icon">🐾</div>
+            <div data-tr="Henüz kayıtlı evcil hayvan yok.<br>Formu doldurup kaydedin!" data-en="No pets saved yet.<br>Fill the form and save!">Henüz kayıtlı evcil hayvan yok.<br>Formu doldurup kaydedin!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="features-inner">
+    <div class="features-header reveal">
+      <div class="section-tag" data-tr="Özellikler" data-en="Features">Özellikler</div>
+      <h2 class="section-title"><span data-tr="Neler " data-en="What We ">Neler </span><em data-tr="Sunuyoruz" data-en="Offer">Sunuyoruz</em></h2>
+    </div>
+    <div class="features-grid reveal">
+      <div class="feature-card"><span class="feature-num">01</span><span class="feature-icon">🐕</span><div class="feature-title" data-tr="Pet NFT Mint" data-en="Pet NFT Mint">Pet NFT Mint</div><p class="feature-desc" data-tr="Evcil hayvanınızın fotoğrafını yükleyin, benzersiz bir NFT oluşturun ve blockchain'de kalıcı sahipliğinizi ispatlayın." data-en="Upload your pet's photo, create a unique NFT, and prove permanent ownership on the blockchain.">Evcil hayvanınızın fotoğrafını yükleyin, benzersiz bir NFT oluşturun.</p></div>
+      <div class="feature-card"><span class="feature-num">02</span><span class="feature-icon">💎</span><div class="feature-title" data-tr="RWA Tokenizasyon" data-en="RWA Tokenization">RWA Tokenizasyon</div><p class="feature-desc" data-tr="Evcil hayvanlarınıza ait gerçek dünya varlıklarını tokenize ederek likit ve şeffaf bir pazar oluşturun." data-en="Tokenize your pet's real-world assets to create a liquid and transparent marketplace.">Gerçek dünya varlıklarını tokenize ederek likit bir pazar oluşturun.</p></div>
+      <div class="feature-card"><span class="feature-num">03</span><span class="feature-icon">🏥</span><div class="feature-title" data-tr="Sağlık Kayıtları" data-en="Health Records">Sağlık Kayıtları</div><p class="feature-desc" data-tr="Veteriner ziyaretleri, aşı kayıtları ve sağlık geçmişi blockchain üzerinde güvenle saklanır." data-en="Vet visits, vaccination records and health history are securely stored on the blockchain.">Veteriner ziyaretleri ve aşı kayıtları blockchain'de güvenle saklanır.</p></div>
+      <div class="feature-card"><span class="feature-num">04</span><span class="feature-icon">🗳️</span><div class="feature-title" data-tr="DAO Yönetimi" data-en="DAO Governance">DAO Yönetimi</div><p class="feature-desc" data-tr="Topluluk kararlarına oy verin ve platformun geleceğini birlikte şekillendirin." data-en="Vote on community decisions and shape the future of the platform together.">Topluluk kararlarına oy verin, platformun geleceğini şekillendirin.</p></div>
+      <div class="feature-card"><span class="feature-num">05</span><span class="feature-icon">🎁</span><div class="feature-title" data-tr="Staking & Ödüller" data-en="Staking & Rewards">Staking & Ödüller</div><p class="feature-desc" data-tr="Token'larınızı stake edin, özel ayrıcalıklar ve ödüller kazanın." data-en="Stake your tokens, earn special privileges and rewards.">Token'larınızı stake edin, özel ayrıcalıklar ve ödüller kazanın.</p></div>
+      <div class="feature-card"><span class="feature-num">06</span><span class="feature-icon">🌐</span><div class="feature-title" data-tr="Pazar Yeri" data-en="Marketplace">Pazar Yeri</div><p class="feature-desc" data-tr="Pet NFT'leri alın, satın ve takas edin. Dünya genelinde evcil hayvan sahipleriyle bağlantı kurun." data-en="Buy, sell and trade Pet NFTs. Connect with pet owners worldwide.">Pet NFT'leri alın, satın ve takas edin.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- NFT MARKETPLACE -->
+<section id="marketplace">
+  <div class="market-inner">
+    <div class="market-header reveal">
+      <div class="section-tag" data-tr="NFT Pazar Yeri" data-en="NFT Marketplace">NFT Pazar Yeri</div>
+      <h2 class="section-title"><span data-tr="Öne Çıkan " data-en="Featured ">Öne Çıkan </span><em data-tr="NFT'ler" data-en="NFTs">NFT'ler</em></h2>
+      <p class="section-desc" data-tr="Benzersiz evcil hayvan NFT'lerini keşfedin ve koleksiyonunuza ekleyin." data-en="Discover unique pet NFTs and add them to your collection.">Benzersiz evcil hayvan NFT'lerini keşfedin ve koleksiyonunuza ekleyin.</p>
+    </div>
+    <div class="market-filters reveal">
+      <button class="filter-btn active" onclick="filterNFT('all',this)" data-cat="all" data-tr="Tümü" data-en="All">Tümü</button>
+      <button class="filter-btn" onclick="filterNFT('dog',this)" data-cat="dog" data-tr="🐕 Köpek" data-en="🐕 Dog">🐕 Köpek</button>
+      <button class="filter-btn" onclick="filterNFT('cat',this)" data-cat="cat" data-tr="🐈 Kedi" data-en="🐈 Cat">🐈 Kedi</button>
+      <button class="filter-btn" onclick="filterNFT('bird',this)" data-cat="bird" data-tr="🦜 Kuş" data-en="🦜 Bird">🦜 Kuş</button>
+      <button class="filter-btn" onclick="filterNFT('rabbit',this)" data-cat="rabbit" data-tr="🐇 Tavşan" data-en="🐇 Rabbit">🐇 Tavşan</button>
+      <button class="filter-btn" onclick="filterNFT('fish',this)" data-cat="fish" data-tr="🐠 Balık" data-en="🐠 Fish">🐠 Balık</button>
+      <button class="filter-btn" onclick="filterNFT('hamster',this)" data-cat="hamster" data-tr="🐹 Hamster" data-en="🐹 Hamster">🐹 Hamster</button>
+      <button class="filter-btn" onclick="filterNFT('pig',this)" data-cat="pig" data-tr="🐷 Domuz" data-en="🐷 Pig">🐷 Domuz</button>
+    </div>
+    <div class="nft-grid reveal" id="nftGrid">
+      <!-- DOG NFTs -->
+      <div class="nft-card" data-category="dog">
+        <div class="nft-img-wrap">
+          <img class="nft-img" src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&q=80" alt="Max">
+          <div class="nft-badge">Rialo #001</div>
+          <div class="nft-rarity rarity-legendary" data-tr="Efsanevi" data-en="Legendary">Efsanevi</div>
+        </div>
+        <div class="nft-body">
+          <div class="nft-name">Max</div>
+          <div class="nft-type" data-tr="Golden Retriever • Köpek" data-en="Golden Retriever • Dog">Golden Retriever • Köpek</div>
+          <div class="nft-traits">
+            <span class="nft-trait" data-tr="Sevecen" data-en="Friendly">Sevecen</span>
+            <span class="nft-trait" data-tr="Enerjik" data-en="Energetic">Enerjik</span>
+            <span class="nft-trait" data-tr="Nadir" data-en="Rare">Nadir</span>
+          </div>
+          <div class="nft-footer">
+            <div class="nft-price">
+              <div class="nft-price-eth">1,715 $RIALO</div>
+              <div class="nft-price-usd">≈ $2,142</div>
+            </div>
+            <button class="nft-buy-btn" onclick="openBuy('Max','Golden Retriever','1715 $RIALO','https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&q=80')" data-tr="Satın Al" data-en="Buy Now">Satın Al</button>
+          </div>
+        </div>
+      </div>
+      <div class="nft-card" data-category="dog">
+        <div class="nft-img-wrap">
+          <img class="nft-img" src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&q=80" alt="Buddy">
+          <div class="nft-badge">Rialo #004</div>
+          <div class="nft-rarity rarity-rare" data-tr="Nadir" data-en="Rare">Nadir</div>
+        </div>
+        <div class="nft-body">
+          <div class="nft-name">Buddy</div>
+          <div class="nft-type" data-tr="Labrador • Köpek" data-en="Labrador • Dog">Labrador • Köpek</div>
+          <div class="nft-traits">
+            <span class="nft-trait" data-tr="Sadık" data-en="Loyal">Sadık</span>
+            <span class="nft-trait" data-tr="Oyuncu" data-en="Playful">Oyuncu</span>
+          </div>
+          <div class="nft-footer">
+            <div class="nft-price">
+              <div class="nft-price-eth">848 $RIALO</div>
+              <div class="nft-price-usd">≈ $1,058</div>
+            </div>
+            <button class="nft-buy-btn" onclick="openBuy('Buddy','Labrador','848 $RIALO','https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200&q=80')" data-tr="Satın Al" data-en="Buy Now">Satın Al</button>
+          </div>
+        </div>
+      </div>
+      <!-- CAT NFTs -->
+      <div class="nft-card" data-category="cat">
+        <div class="nft-img-wrap">
+          <img class="nft-img" src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&q=80" alt="Luna">
+          <div class="nft-badge">Rialo #002</div>
+          <div class="nft-rarity rarity-epic" data-tr="Epik" data-en="Epic">Epik</div>
+        </div>
+        <div class="nft-body">
+          <div class="nft-name">Luna</div>
+          <div class="nft-type" data-tr="British Shorthair • Kedi" data-en="British Shorthair • Cat">British Shorthair • Kedi</div>
+          <div class="nft-traits">
+            <span class="nft-trait" data-tr="Zarif" data-en="Elegant">Zarif</span>
+            <span class="nft-trait" data-tr="Gizemli" data-en="Mysterious">Gizemli</span>
+          </div>
+          <div class="nft-footer">
+            <div class="nft-price">
+              <div class="nft-price-eth">1,312 $RIALO</div>
+              <div class="nft-price-usd">≈ $1,638</div>
+            </div>
+            <button class="nft-buy-btn" onclick="openBuy('Luna','British Shorthair','1312 $RIALO','https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&q=80')" data-tr="Satın Al" data-en="Buy Now">Satın Al</button>
+          </div>
+        </div>
+      </div>
+      <div class="nft-card" data-category="cat">
+        <div class="nft-img-wrap">
+          <img class="nft-img" src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=600&q=80" alt="Mochi">
+          <div class="nft-badge">Rialo #007</div>
+          <div class="nft-rarity rarity-common" data-tr="Yaygın" data-en="Common">Yaygın</div>
+        </div>
+        <div class="nft-body">
+          <div class="nft-name">Mochi</div>
+          <div class="nft-type" data-tr="Tabby Cat • Kedi" data-en="Tabby Cat • Cat">Tabby Cat • Kedi</div>
+          <div class="nft-traits">
+            <span class="nft-trait" data-tr="Meraklı" data-en="Curious">Meraklı</span>
+            <span class="nft-trait" data-tr="Tatlı" data-en="Sweet">Tatlı</span>
+          </div>
+          <div class="nft-footer">
+            <div class="nft-price">
+              <div class="nft-price-eth">363 $RIALO</div>
+              <div class="nft-price-usd">≈ $453</div>
+            </div>
+            <button class="nft-buy-btn" onclick="openBuy('Mochi','Tabby Cat','363 $RIALO','https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=200&q=80')" data-tr="Satın Al" data-en="Buy Now">Satın Al</button>
+          </div>
+        </div>
+      </div>
+      <!-- BIRD NFTs -->
+      <div class="nft-card" data-category="bird">
+        <div class="nft-img-wrap">
+          <img class="nft-img" src="https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=600&q=80" alt="Rio">
+          <div class="nft-badge">Rialo #003</div>
+          <div class="nft-rarity rarity-legendary" data-tr="Efsanevi" data-en="Legendary">Efsanevi</div>
+        </div>
+        <div class="nft-body">
+          <div class="nft-name">Rio</div>
+          <div class="nft-type" data-tr="Macaw • Kuş" data-en="Macaw • Bird">Macaw • Kuş</div>
+          <div class="nft-traits">
+            <span class="nft-trait" data-tr="Konuşkan" data-en="Talkative">Konuşkan</span>
+            <span class="nft-trait" data-tr="Renkli" data-en="Colorful">Renkli</span>
+          </div>
+          <div class="nft-footer">
+            <div class="nft-price">
+              <div class="nft-price-eth">2,423 $RIALO</div>
+              <div class="nft-price-usd">≈ $3,024</div>
+            </div>
+            <button class="nft-buy-btn" onclick="openBuy('Rio','Macaw Papağanı','2423 $RIALO','https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=200&q=80')" data-tr="Satın Al" data-en="Buy Now">Satın Al</button>
+          </div>
+        </div>
+      </div>
+      <div class="nft-card" data-category="bird">
+        <div class="nft-img-wrap">
+          <img class="nft-img" src="https://images.unsplash.com/photo-1468493424329-9c14ef65590c?w=600&q=80" alt="Tweety">
+          <div class="nft-badge">Rialo #011</div>
+          <div class="nft-rarity rarity-rare" data-tr="Nadir" data-en="Rare">Nadir</div>
+        </div>
+        <div class="nft-body">
+          <div class="nft-name">Tweety</div>
+          <div class="nft-type" data-tr="Kanarya • Kuş" data-en="Canary • Bird">Kanarya • Kuş</div>
+          <div class="nft-traits">
+            <span class="nft-trait" data-tr="Şarkıcı" data-en="Singer">Şarkıcı</span>
+            <span class="nft-trait" data-tr="Neşeli" data-en="Joyful">Neşeli</span>
+          </div>
+          <div class="nft-footer">
+            <div class="nft-price">
+              <div class="nft-price-eth">626 $RIALO</div>
+              <div class="nft-price-usd">≈ $781</div>
+            </div>
+            <button class="nft-buy-btn" onclick="openBuy('Tweety','Kanarya','626 $RIALO','https://images.unsplash.com/photo-1468493424329-9c14ef65590c?w=200&q=80')" data-tr="Satın Al" data-en="Buy Now">Satın Al</button>
+          </div>
+        </div>
+      </div>
+      <!-- RABBIT NFTs -->
+      <div class="nft-card" data-category="rabbit">
+        <div class="nft-img-wrap">
+          <img class="nft-img" src="https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=600&q=80" alt="Flopsy">
+          <div class="nft-badge">Rialo #005</div>
+          <div class="nft-rarity rarity-epic" data-tr="Epik" data-en="Epic">Epik</div>
+        </div>
+        <div class="nft-body">
+          <div class="nft-name">Flopsy</div>
+          <div class="nft-type" data-tr="Holland Lop • Tavşan" data-en="Holland Lop • Rabbit">Holland Lop • Tavşan</div>
+          <div class="nft-traits">
+            <span class="nft-trait" data-tr="Yumuşak" data-en="Fluffy">Yumuşak</span>
+            <span class="nft-trait" data-tr="Sakin" data-en="Calm">Sakin</span>
+          </div>
+          <div class="nft-footer">
+            <div class="nft-price">
+              <div class="nft-price-eth">1,110 $RIALO</div>
+              <div class="nft-price-usd">≈ $1,386</div>
+            </div>
+            <button class="nft-buy-btn" onclick="openBuy('Flopsy','Holland Lop','1110 $RIALO','https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=200&q=80')" data-tr="Satın Al" data-en="Buy Now">Satın Al</button>
+          </div>
+        </div>
+      </div>
+      <div class="nft-card" data-category="rabbit">
+        <div class="nft-img-wrap">
+          <img class="nft-img" src="https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=600&q=80" alt="Cotton">
+          <div class="nft-badge">Rialo #009</div>
+          <div class="nft-rarity rarity-common" data-tr="Yaygın" data-en="Common">Yaygın</div>
+        </div>
+        <div class="nft-body">
+          <div class="nft-name">Cotton</div>
+          <div class="nft-type" data-tr="Angora • Tavşan" data-en="Angora • Rabbit">Angora • Tavşan</div>
+          <div class="nft-traits">
+            <span class="nft-trait" data-tr="Pamuk" data-en="Fluffy">Pamuk</span>
+            <span class="nft-trait" data-tr="Sevimli" data-en="Cute">Sevimli</span>
+          </div>
+          <div class="nft-footer">
+            <div class="nft-price">
+              <div class="nft-price-eth">444 $RIALO</div>
+              <div class="nft-price-usd">≈ $554</div>
+            </div>
+            <button class="nft-buy-btn" onclick="openBuy('Cotton','Angora Tavşan','444 $RIALO','https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=200&q=80')" data-tr="Satın Al" data-en="Buy Now">Satın Al</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="gallery-inner">
+    <div class="gallery-header reveal">
+      <div class="section-tag" data-tr="PetVerse Ailesi" data-en="PetVerse Family">PetVerse Ailesi</div>
+      <h2 class="section-title"><span data-tr="Sevimli " data-en="Our Adorable ">Sevimli </span><em data-tr="Dostlarımız" data-en="Friends">Dostlarımız</em></h2>
+      <p class="section-desc" data-tr="Ekosistemimizdeki evcil hayvanlar gerçek dünyada yaşıyor, dijital evrende parlaklıklarını koruyor." data-en="The pets in our ecosystem live in the real world while shining in the digital universe.">Ekosistemimizdeki evcil hayvanlar gerçek dünyada yaşıyor, dijital evrende parlaklıklarını koruyor.</p>
+    </div>
+    <div class="pets-grid reveal">
+      <div class="pet-card"><img src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=800&q=80" alt="Köpek" class="pet-img"><div class="pet-overlay"><span class="pet-label">Golden Retriever</span></div><div class="pet-corner-badge">⭐ <span data-tr="Öne Çıkan" data-en="Featured">Öne Çıkan</span></div></div>
+      <div class="pet-card"><img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&q=80" alt="Kedi" class="pet-img"><div class="pet-overlay"><span class="pet-label">British Shorthair</span></div></div>
+      <div class="pet-card"><img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&q=80" alt="Labrador" class="pet-img"><div class="pet-overlay"><span class="pet-label">Labrador</span></div></div>
+      <div class="pet-card"><img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=600&q=80" alt="Kedi2" class="pet-img"><div class="pet-overlay"><span class="pet-label">Tabby Cat</span></div></div>
+      <div class="pet-card"><img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&q=80" alt="Köpekler" class="pet-img"><div class="pet-overlay"><span class="pet-label" data-tr="Dostluk" data-en="Friendship">Dostluk</span></div><div class="pet-corner-badge">🔥 Trend</div></div>
+      <div class="pet-card"><img src="https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=600&q=80" alt="Tavşan" class="pet-img"><div class="pet-overlay"><span class="pet-label">Mini Rabbit</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TOKENS -->
+<section id="tokens">
+  <div class="tokens-inner">
+    <div class="tokens-header reveal">
+      <div class="section-tag center" data-tr="Ekosistem Tokenları" data-en="Ecosystem Tokens">Ekosistem Tokenları</div>
+      <h2 class="section-title" style="text-align:center"><em data-tr="PetVerse" data-en="PetVerse">PetVerse</em> <span data-tr="Tokenleri" data-en="Tokens">Tokenleri</span></h2>
+      <p class="section-desc" style="margin:0 auto;text-align:center" data-tr="Evcil hayvan isimleriyle hayat bulan token ekosistemi. Stake edin, kazanın, büyütün." data-en="A token ecosystem brought to life with pet names. Stake, earn, and grow.">Evcil hayvan isimleriyle hayat bulan token ekosistemi. Stake edin, kazanın, büyütün.</p>
+    </div>
+    <div class="tokens-grid reveal">
+      <div class="token-card">
+        <div class="token-header">
+          <div class="token-icon" style="background:linear-gradient(135deg,rgba(212,148,90,.2),rgba(212,148,90,.05))">🐕</div>
+          <div><div class="token-name">Woof</div><div class="token-ticker">$WOOF</div><div class="token-nft-count" id="tokenNftCount-WOOF">🔗 0 NFT</div></div>
+        </div>
+        <div class="token-stats">
+          <div class="token-stat"><div class="token-stat-label" data-tr="Fiyat" data-en="Price">Fiyat</div><div class="token-stat-val">$0.284</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="24s Değ." data-en="24h Chg.">24s Değ.</div><div class="token-stat-val up">+8.4%</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Piyasa Değ." data-en="Market Cap">Piyasa Değ.</div><div class="token-stat-val">$4.2M</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Hacim" data-en="Volume">Hacim</div><div class="token-stat-val">$842K</div></div>
+        </div>
+        <div class="token-progress"><div class="token-progress-label"><span data-tr="Stake Havuzu" data-en="Stake Pool">Stake Havuzu</span><span>72%</span></div><div class="token-progress-bar"><div class="token-progress-fill" style="width:72%"></div></div></div>
+        <div class="token-action"><button class="token-buy" data-tr="Token Al" data-en="Buy Token" onclick="buyToken('WOOF','🐕')">Token Al</button><button class="token-fav">⭐</button></div>
+      </div>
+      <div class="token-card">
+        <div class="token-header">
+          <div class="token-icon" style="background:linear-gradient(135deg,rgba(147,51,234,.2),rgba(147,51,234,.05))">🐈</div>
+          <div><div class="token-name">Meow</div><div class="token-ticker">$MEOW</div><div class="token-nft-count" id="tokenNftCount-MEOW">🔗 0 NFT</div></div>
+        </div>
+        <div class="token-stats">
+          <div class="token-stat"><div class="token-stat-label" data-tr="Fiyat" data-en="Price">Fiyat</div><div class="token-stat-val">$0.519</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="24s Değ." data-en="24h Chg.">24s Değ.</div><div class="token-stat-val up">+12.1%</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Piyasa Değ." data-en="Market Cap">Piyasa Değ.</div><div class="token-stat-val">$7.8M</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Hacim" data-en="Volume">Hacim</div><div class="token-stat-val">$1.3M</div></div>
+        </div>
+        <div class="token-progress"><div class="token-progress-label"><span data-tr="Stake Havuzu" data-en="Stake Pool">Stake Havuzu</span><span>85%</span></div><div class="token-progress-bar"><div class="token-progress-fill" style="width:85%"></div></div></div>
+        <div class="token-action"><button class="token-buy" data-tr="Token Al" data-en="Buy Token" onclick="buyToken('MEOW','🐈')">Token Al</button><button class="token-fav">⭐</button></div>
+      </div>
+      <div class="token-card">
+        <div class="token-header">
+          <div class="token-icon" style="background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(59,130,246,.05))">🦜</div>
+          <div><div class="token-name">Chirp</div><div class="token-ticker">$CHIRP</div><div class="token-nft-count" id="tokenNftCount-CHIRP">🔗 0 NFT</div></div>
+        </div>
+        <div class="token-stats">
+          <div class="token-stat"><div class="token-stat-label" data-tr="Fiyat" data-en="Price">Fiyat</div><div class="token-stat-val">$0.147</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="24s Değ." data-en="24h Chg.">24s Değ.</div><div class="token-stat-val down">-2.3%</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Piyasa Değ." data-en="Market Cap">Piyasa Değ.</div><div class="token-stat-val">$2.1M</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Hacim" data-en="Volume">Hacim</div><div class="token-stat-val">$380K</div></div>
+        </div>
+        <div class="token-progress"><div class="token-progress-label"><span data-tr="Stake Havuzu" data-en="Stake Pool">Stake Havuzu</span><span>48%</span></div><div class="token-progress-bar"><div class="token-progress-fill" style="width:48%"></div></div></div>
+        <div class="token-action"><button class="token-buy" data-tr="Token Al" data-en="Buy Token" onclick="buyToken('CHIRP','🦜')">Token Al</button><button class="token-fav">⭐</button></div>
+      </div>
+      <div class="token-card">
+        <div class="token-header">
+          <div class="token-icon" style="background:linear-gradient(135deg,rgba(76,175,80,.2),rgba(76,175,80,.05))">🐇</div>
+          <div><div class="token-name">Hoppy</div><div class="token-ticker">$HOP</div><div class="token-nft-count" id="tokenNftCount-HOP">🔗 0 NFT</div></div>
+        </div>
+        <div class="token-stats">
+          <div class="token-stat"><div class="token-stat-label" data-tr="Fiyat" data-en="Price">Fiyat</div><div class="token-stat-val">$0.092</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="24s Değ." data-en="24h Chg.">24s Değ.</div><div class="token-stat-val up">+5.7%</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Piyasa Değ." data-en="Market Cap">Piyasa Değ.</div><div class="token-stat-val">$1.4M</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Hacim" data-en="Volume">Hacim</div><div class="token-stat-val">$210K</div></div>
+        </div>
+        <div class="token-progress"><div class="token-progress-label"><span data-tr="Stake Havuzu" data-en="Stake Pool">Stake Havuzu</span><span>61%</span></div><div class="token-progress-bar"><div class="token-progress-fill" style="width:61%"></div></div></div>
+        <div class="token-action"><button class="token-buy" data-tr="Token Al" data-en="Buy Token" onclick="buyToken('HOP','🐇')">Token Al</button><button class="token-fav">⭐</button></div>
+      </div>
+      <div class="token-card">
+        <div class="token-header">
+          <div class="token-icon" style="background:linear-gradient(135deg,rgba(240,176,112,.2),rgba(240,176,112,.05))">🐠</div>
+          <div><div class="token-name">Nemo</div><div class="token-ticker">$NEMO</div><div class="token-nft-count" id="tokenNftCount-NEMO">🔗 0 NFT</div></div>
+        </div>
+        <div class="token-stats">
+          <div class="token-stat"><div class="token-stat-label" data-tr="Fiyat" data-en="Price">Fiyat</div><div class="token-stat-val">$0.063</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="24s Değ." data-en="24h Chg.">24s Değ.</div><div class="token-stat-val up">+3.2%</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Piyasa Değ." data-en="Market Cap">Piyasa Değ.</div><div class="token-stat-val">$890K</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Hacim" data-en="Volume">Hacim</div><div class="token-stat-val">$145K</div></div>
+        </div>
+        <div class="token-progress"><div class="token-progress-label"><span data-tr="Stake Havuzu" data-en="Stake Pool">Stake Havuzu</span><span>38%</span></div><div class="token-progress-bar"><div class="token-progress-fill" style="width:38%"></div></div></div>
+        <div class="token-action"><button class="token-buy" data-tr="Token Al" data-en="Buy Token" onclick="buyToken('NEMO','🐠')">Token Al</button><button class="token-fav">⭐</button></div>
+      </div>
+      <div class="token-card">
+        <div class="token-header">
+          <div class="token-icon" style="background:linear-gradient(135deg,rgba(233,196,106,.2),rgba(233,196,106,.05))">🐹</div>
+          <div><div class="token-name">Nibble</div><div class="token-ticker">$NIBBLE</div><div class="token-nft-count" id="tokenNftCount-NIBBLE">🔗 0 NFT</div></div>
+        </div>
+        <div class="token-stats">
+          <div class="token-stat"><div class="token-stat-label" data-tr="Fiyat" data-en="Price">Fiyat</div><div class="token-stat-val">$0.038</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="24s Değ." data-en="24h Chg.">24s Değ.</div><div class="token-stat-val up">+6.1%</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Piyasa Değ." data-en="Market Cap">Piyasa Değ.</div><div class="token-stat-val">$410K</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Hacim" data-en="Volume">Hacim</div><div class="token-stat-val">$62K</div></div>
+        </div>
+        <div class="token-progress"><div class="token-progress-label"><span data-tr="Stake Havuzu" data-en="Stake Pool">Stake Havuzu</span><span>29%</span></div><div class="token-progress-bar"><div class="token-progress-fill" style="width:29%"></div></div></div>
+        <div class="token-action"><button class="token-buy" data-tr="Token Al" data-en="Buy Token" onclick="buyToken('NIBBLE','🐹')">Token Al</button><button class="token-fav">⭐</button></div>
+      </div>
+      <div class="token-card">
+        <div class="token-header">
+          <div class="token-icon" style="background:linear-gradient(135deg,rgba(244,162,204,.2),rgba(244,162,204,.05))">🐷</div>
+          <div><div class="token-name">Oink</div><div class="token-ticker">$OINK</div><div class="token-nft-count" id="tokenNftCount-OINK">🔗 0 NFT</div></div>
+        </div>
+        <div class="token-stats">
+          <div class="token-stat"><div class="token-stat-label" data-tr="Fiyat" data-en="Price">Fiyat</div><div class="token-stat-val">$0.071</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="24s Değ." data-en="24h Chg.">24s Değ.</div><div class="token-stat-val up">+4.4%</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Piyasa Değ." data-en="Market Cap">Piyasa Değ.</div><div class="token-stat-val">$530K</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Hacim" data-en="Volume">Hacim</div><div class="token-stat-val">$88K</div></div>
+        </div>
+        <div class="token-progress"><div class="token-progress-label"><span data-tr="Stake Havuzu" data-en="Stake Pool">Stake Havuzu</span><span>33%</span></div><div class="token-progress-bar"><div class="token-progress-fill" style="width:33%"></div></div></div>
+        <div class="token-action"><button class="token-buy" data-tr="Token Al" data-en="Buy Token" onclick="buyToken('OINK','🐷')">Token Al</button><button class="token-fav">⭐</button></div>
+      </div>
+      <div class="token-card">
+        <div class="token-header">
+          <div class="token-icon" style="background:linear-gradient(135deg,rgba(200,169,110,.2),rgba(200,169,110,.05))">🐾</div>
+          <div><div class="token-name">Rialo</div><div class="token-ticker">$RIALO</div><div class="token-nft-count" id="tokenNftCount-RIALO">🔗 0 NFT</div></div>
+        </div>
+        <div class="token-stats">
+          <div class="token-stat"><div class="token-stat-label" data-tr="Fiyat" data-en="Price">Fiyat</div><div class="token-stat-val">$1.248</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="24s Değ." data-en="24h Chg.">24s Değ.</div><div class="token-stat-val up">+18.6%</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Piyasa Değ." data-en="Market Cap">Piyasa Değ.</div><div class="token-stat-val">$24M</div></div>
+          <div class="token-stat"><div class="token-stat-label" data-tr="Hacim" data-en="Volume">Hacim</div><div class="token-stat-val">$5.8M</div></div>
+        </div>
+        <div class="token-progress"><div class="token-progress-label"><span data-tr="Stake Havuzu" data-en="Stake Pool">Stake Havuzu</span><span>93%</span></div><div class="token-progress-bar"><div class="token-progress-fill" style="width:93%"></div></div></div>
+        <div class="token-action"><button class="token-buy" data-tr="Token Al" data-en="Buy Token" onclick="buyToken('RIALO','🐾')">Token Al</button><button class="token-fav">⭐</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div class="how-inner">
+    <div class="how-header reveal">
+      <div class="section-tag center" data-tr="Nasıl Çalışır" data-en="How It Works">Nasıl Çalışır</div>
+      <h2 class="section-title"><span data-tr="4 Adımda " data-en="Get Started in ">4 Adımda </span><em data-tr="Başla" data-en="4 Steps">Başla</em></h2>
+    </div>
+    <div class="steps reveal">
+      <div class="step"><div class="step-num">1</div><h3 data-tr="Cüzdan Bağla" data-en="Connect Wallet">Cüzdan Bağla</h3><p data-tr="MetaMask veya Keplr ile güvenle bağlanın" data-en="Connect securely with MetaMask or Keplr">MetaMask veya Keplr ile güvenle bağlanın</p></div>
+      <div class="step"><div class="step-num">2</div><h3 data-tr="Profil Oluştur" data-en="Create Profile">Profil Oluştur</h3><p data-tr="Evcil hayvanınızın dijital profilini oluşturun" data-en="Create your pet's digital profile">Evcil hayvanınızın dijital profilini oluşturun</p></div>
+      <div class="step"><div class="step-num">3</div><h3 data-tr="NFT Mint Et" data-en="Mint NFT">NFT Mint Et</h3><p data-tr="Benzersiz NFT'nizi blockchain'e kaydedin" data-en="Record your unique NFT on the blockchain">Benzersiz NFT'nizi blockchain'e kaydedin</p></div>
+      <div class="step"><div class="step-num">4</div><h3 data-tr="Kazan & Büyü" data-en="Earn & Grow">Kazan & Büyü</h3><p data-tr="Ekosistemde aktif olun, ödüller kazanın" data-en="Be active in the ecosystem, earn rewards">Ekosistemde aktif olun, ödüller kazanın</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- RWA -->
+<section id="rwa">
+  <div class="rwa-inner">
+    <div class="reveal">
+      <div class="section-tag" data-tr="RWA Teknolojisi" data-en="RWA Technology">RWA Teknolojisi</div>
+      <h2 class="section-title"><span data-tr="Gerçek Dünya " data-en="Real World ">Gerçek Dünya </span><br><em data-tr="Varlıkları" data-en="Assets">Varlıkları</em></h2>
+      <p class="section-desc" style="margin-bottom:36px" data-tr="Real World Asset (RWA) tokenizasyonu sayesinde evcil hayvanlarınızın gerçek ekonomik değeri dijital dünyaya taşınıyor." data-en="Thanks to Real World Asset (RWA) tokenization, the real economic value of your pets is transferred to the digital world.">RWA tokenizasyonu sayesinde evcil hayvanlarınızın gerçek ekonomik değeri dijital dünyaya taşınıyor.</p>
+      <div class="rwa-cards">
+        <div class="rwa-card"><div class="rwa-card-icon">🏷️</div><div><h3 data-tr="Tokenize Sahiplik" data-en="Tokenized Ownership">Tokenize Sahiplik</h3><p data-tr="Evcil hayvanınızın yasal sahipliği blockchain üzerinde şeffaf şekilde temsil edilir" data-en="The legal ownership of your pet is transparently represented on the blockchain">Evcil hayvanınızın yasal sahipliği blockchain üzerinde temsil edilir</p></div></div>
+        <div class="rwa-card" onclick="openModal('valueRankModal');renderValueRanking();" style="cursor:none;"><div class="rwa-card-icon">📊</div><div><h3 data-tr="Değer Takibi" data-en="Value Tracking">Değer Takibi</h3><p data-tr="Irk, sağlık geçmişi ve diğer faktörlere göre gerçek zamanlı değer analizi" data-en="Real-time value analysis based on breed, health history and other factors">Irk ve sağlık geçmişine göre gerçek zamanlı değer analizi</p></div></div>
+        <div class="rwa-card"><div class="rwa-card-icon">🔒</div><div><h3 data-tr="Güvenli Saklama" data-en="Secure Storage">Güvenli Saklama</h3><p data-tr="Merkezi olmayan yapı sayesinde verileriniz güvende, sahipliğiniz garanti altında" data-en="Your data is safe and ownership guaranteed through decentralized architecture">Merkezi olmayan yapı sayesinde verileriniz güvende</p></div></div>
+        <div class="rwa-card"><div class="rwa-card-icon">💱</div><div><h3 data-tr="Likit Pazar" data-en="Liquid Market">Likit Pazar</h3><p data-tr="Tokenize varlıkları global pazarda kolayca alıp satabilirsiniz" data-en="You can easily buy and sell tokenized assets in the global market">Tokenize varlıkları global pazarda kolayca alıp satabilirsiniz</p></div></div>
+      </div>
+    </div>
+    <div class="reveal" style="display:flex;align-items:center;justify-content:center;">
+      <div class="rwa-orb">
+        <div class="rwa-orb-ring"><div class="rwa-orb-dot"></div></div>
+        <div class="rwa-orb-inner">
+          <div class="rwa-logo-center"><img src="data:image/jpeg;base64,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" alt="Rialo"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-inner reveal">
+    <h2 class="cta-title"><span data-tr="PetVerse'e" data-en="Ready to">PetVerse'e</span><br><em data-tr="Katılmaya" data-en="Join">Katılmaya</em><br><span data-tr="Hazır mısın?" data-en="PetVerse?">Hazır mısın?</span></h2>
+    <p class="cta-sub" data-tr="Bekleme listesine katıl, erken erişim avantajlarından ve özel token dağıtımından yararlan." data-en="Join the waitlist and benefit from early access advantages and exclusive token distribution.">Bekleme listesine katıl, erken erişim avantajlarından ve özel token dağıtımından yararlan.</p>
+    <div class="cta-form">
+      <input type="email" class="cta-input" id="ctaEmail" data-placeholder-tr="E-posta adresin" data-placeholder-en="Your email address" placeholder="E-posta adresin">
+      <button class="btn-primary" onclick="submitEmail()" data-tr="Katıl" data-en="Join">Katıl</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">
+        <div class="footer-logo-img"><img src="data:image/jpeg;base64,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" alt="Rialo"></div>
+        <div class="footer-brand-name">Rialo <span>PetVerse</span> RWA</div>
+      </div>
+      <p class="footer-desc" data-tr="Evcil hayvanlarınızın gerçek dünya varlıklarını blockchain ile buluşturan öncü Web3 ekosistemi." data-en="The pioneering Web3 ecosystem connecting your pets' real-world assets with blockchain.">Evcil hayvanlarınızın gerçek dünya varlıklarını blockchain ile buluşturan öncü Web3 ekosistemi.</p>
+      <div class="footer-social">
+        <a href="https://x.com/RialoHQ?s=20" target="_blank" rel="noopener noreferrer" class="social-btn">𝕏</a>
+        <a href="#" class="social-btn">📱</a>
+        <a href="https://discord.gg/DzEzMgFSE" target="_blank" rel="noopener noreferrer" class="social-btn">💬</a>
+        <a href="#" class="social-btn" onclick="event.preventDefault();openModal('announcementModal')" style="cursor:none;">📣</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4 data-tr="Platform" data-en="Platform">Platform</h4>
+      <ul>
+        <li><a href="#identity" data-tr="NFT Mint" data-en="NFT Mint">NFT Mint</a></li>
+        <li><a href="#marketplace" data-tr="Pazar Yeri" data-en="Marketplace">Pazar Yeri</a></li>
+        <li><a href="#tokens" data-tr="Staking" data-en="Staking">Staking</a></li>
+        <li><a href="#" onclick="event.preventDefault();openModal('communityModal')" style="cursor:none;" data-tr="DAO" data-en="DAO">DAO</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4 data-tr="Topluluk" data-en="Community">Topluluk</h4>
+      <ul>
+        <li><a href="#" data-tr="Blog" data-en="Blog">Blog</a></li>
+        <li><a href="#" data-tr="Etkinlikler" data-en="Events">Etkinlikler</a></li>
+        <li><a href="#" data-tr="Forum" data-en="Forum">Forum</a></li>
+        <li><a href="https://discord.gg/DzEzMgFSE" target="_blank" rel="noopener noreferrer" data-tr="Discord" data-en="Discord">Discord</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4 data-tr="Destek" data-en="Support">Destek</h4>
+      <ul>
+        <li><a href="#" data-tr="Hakkımızda" data-en="About Us">Hakkımızda</a></li>
+        <li><a href="#" data-tr="SSS" data-en="FAQ">SSS</a></li>
+        <li><a href="#" data-tr="İletişim" data-en="Contact">İletişim</a></li>
+        <li><a href="#" onclick="event.preventDefault();openModal('whitepaperModal')" style="cursor:none;" data-tr="Whitepaper" data-en="Whitepaper">Whitepaper</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 <span>Rialo PetVerse RWA</span>. <span data-tr="Tüm hakları saklıdır." data-en="All rights reserved.">Tüm hakları saklıdır.</span></span>
+    <span class="footer-copy" data-tr="Sevgiyle yapıldı 🐾" data-en="Made with love 🐾">Sevgiyle yapıldı 🐾</span>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR
+const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.transform=`translate3d(${mx}px,${my}px,0) translate3d(-50%,-50%,0)`;});
+(function anim(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.transform=`translate3d(${rx}px,${ry}px,0) translate3d(-50%,-50%,0)`;requestAnimationFrame(anim);})();
+document.querySelectorAll('a,button,.feature-card,.rwa-card,.pet-card,.step,.nft-card,.token-card,.wallet-option').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.width='20px';cursor.style.height='20px';ring.style.width='60px';ring.style.height='60px';});
+  el.addEventListener('mouseleave',()=>{cursor.style.width='12px';cursor.style.height='12px';ring.style.width='40px';ring.style.height='40px';});
+});
+
+// ── SCROLL REVEAL
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('visible'),100);});},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ── NAV SCROLL
+window.addEventListener('scroll',()=>{document.querySelector('nav').style.padding=window.scrollY>50?'10px 50px':'16px 50px';});
+
+// ── LANGUAGE
+let currentLang='en';
+
+// ── SECURITY: escape user-supplied text before inserting into innerHTML ──
+function escapeHTML(str){
+  if(str===null||str===undefined) return '';
+  return String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+// Strictly validates that a string is a well-formed base64 image data URI —
+// used before any image data is placed into innerHTML, so nothing that could
+// break out of an HTML attribute (e.g. a stray '"') is ever accepted.
+function isSafeImageDataURI(str){
+  return typeof str==='string' && /^data:image\/(jpeg|png|webp|gif|svg\+xml);base64,[A-Za-z0-9+/]+=*$/.test(str);
+}
+function setLang(lang){
+  currentLang=lang;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.textContent===lang.toUpperCase()));
+  document.querySelectorAll('[data-'+lang+']').forEach(el=>{
+    if(el.tagName==='INPUT'){el.placeholder=el.getAttribute('data-'+lang);}
+    else{el.textContent=el.getAttribute('data-'+lang);}
+  });
+  document.querySelectorAll('[data-placeholder-'+lang+']').forEach(el=>{el.placeholder=el.getAttribute('data-placeholder-'+lang);});
+  document.documentElement.lang=lang;
+  if(typeof renderPetCards==='function') renderPetCards();
+  if(typeof renderValueRanking==='function') renderValueRanking();
+  if(typeof renderCommunityMembers==='function') renderCommunityMembers();
+  if(typeof renderUserNFTs==='function') renderUserNFTs();
+  if(typeof updateTokenNftCounts==='function') updateTokenNftCounts();
+}
+
+// ── MODAL
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+// ── WALLET ──────────────────────────────────────────────────────────────
+let connectedWallet = null;
+let connectedAddress = null;
+
+/* ---------- helpers ---------- */
+function setWalletLoading(type, on) {
+  var spinner = document.getElementById(type === 'metamask' ? 'mmSpinner' : 'keplrSpinner');
+  var arrow   = document.getElementById(type === 'metamask' ? 'mmArrow'   : 'keplrArrow');
+  var option  = document.getElementById(type === 'metamask' ? 'mmOption'  : 'keplrOption');
+  if (on) {
+    if (spinner) { spinner.classList.add('spin'); }
+    if (arrow)   { arrow.style.display = 'none'; }
+    if (option)  { option.classList.add('loading'); }
+  } else {
+    if (spinner) { spinner.classList.remove('spin'); }
+    if (arrow)   { arrow.style.display = 'block'; }
+    if (option)  { option.classList.remove('loading'); }
+  }
+}
+
+function showWalletInstall(type) {
+  var hint = document.getElementById(type === 'metamask' ? 'mmInstall' : 'keplrInstall');
+  if (hint) hint.classList.add('show');
+}
+
+function updateNavWallet(wallet, addr) {
+  var btn = document.getElementById('walletConnectBtn');
+  var dot = document.getElementById('walletDot');
+  var txt = document.getElementById('walletBtnTxt');
+  if (!btn || !dot || !txt) return;
+  btn.classList.add('connected');
+  dot.style.background   = 'var(--green)';
+  dot.style.boxShadow    = '0 0 8px rgba(76,175,80,.6)';
+  dot.style.animation    = 'pulse 2s infinite';
+  var short = addr.length > 12 ? addr.slice(0,6) + '...' + addr.slice(-4) : addr;
+  txt.textContent = short;
+}
+
+function showConnectedStatus(wallet, addr) {
+  var statusEl  = document.getElementById('walletStatus');
+  var statusTxt = document.getElementById('walletStatusTxt');
+  var statusAddr= document.getElementById('walletStatusAddr');
+  var discBtn   = document.getElementById('walletDisconnectBtn');
+  var short = addr.length > 12 ? addr.slice(0,6) + '...' + addr.slice(-4) : addr;
+  if (statusTxt)  statusTxt.textContent  = (currentLang === 'tr' ? 'Bağlandı: ' : 'Connected: ') + wallet;
+  if (statusAddr) statusAddr.textContent = short;
+  if (statusEl)   statusEl.classList.add('show');
+  if (discBtn)    discBtn.style.display  = 'block';
+}
+
+/* ---------- main connect ---------- */
+async function connectWallet(type) {
+  setWalletLoading(type, true);
+
+  try {
+    /* ── MetaMask ── */
+    if (type === 'metamask') {
+      // 1. Check provider exists
+      if (typeof window.ethereum === 'undefined') {
+        setWalletLoading(type, false);
+        showWalletInstall('metamask');
+        showToast('🦊', currentLang === 'tr'
+          ? 'MetaMask bulunamadi. Chrome/Firefox uzantisini yukleyin.'
+          : 'MetaMask not found. Please install the browser extension.', 'error');
+        return;
+      }
+
+      // 2. Handle multiple providers (e.g. Coinbase + MetaMask)
+      var provider = window.ethereum;
+      if (window.ethereum.providers) {
+        provider = window.ethereum.providers.find(function(p){ return p.isMetaMask; })
+                || window.ethereum;
+      }
+
+      // 3. Request accounts — triggers MetaMask popup
+      var accounts;
+      try {
+        accounts = await provider.request({ method: 'eth_requestAccounts' });
+      } catch (reqErr) {
+        setWalletLoading(type, false);
+        if (reqErr.code === 4001) {
+          showToast('⚠️', currentLang === 'tr'
+            ? 'Baglanti reddedildi. MetaMask penceresinde "Onayla" secin.'
+            : 'Connection rejected. Click "Connect" in MetaMask.', 'error');
+        } else if (reqErr.code === -32002) {
+          showToast('🦊', currentLang === 'tr'
+            ? 'MetaMask zaten bir istek bekliyor. Uzanti ikonuna tiklayin.'
+            : 'MetaMask already has a pending request. Click the extension icon.', 'error');
+        } else {
+          showToast('⚠️', reqErr.message || String(reqErr), 'error');
+        }
+        return;
+      }
+
+      if (!accounts || accounts.length === 0) {
+        setWalletLoading(type, false);
+        showToast('⚠️', currentLang === 'tr' ? 'Hesap bulunamadi.' : 'No accounts found.', 'error');
+        return;
+      }
+
+      connectedAddress = accounts[0];
+      connectedWallet  = 'MetaMask';
+
+      // 4. Listen for changes
+      provider.on('accountsChanged', function(accs) {
+        if (!accs || accs.length === 0) { disconnectWallet(); }
+        else { connectedAddress = accs[0]; updateNavWallet(connectedWallet, connectedAddress); }
+      });
+      provider.on('chainChanged', function() { window.location.reload(); });
+    }
+
+    /* ── Keplr ── */
+    else if (type === 'keplr') {
+      if (typeof window.keplr === 'undefined') {
+        setWalletLoading(type, false);
+        showWalletInstall('keplr');
+        showToast('⚛️', currentLang === 'tr'
+          ? 'Keplr bulunamadi. Chrome/Firefox uzantisini yukleyin.'
+          : 'Keplr not found. Please install the browser extension.', 'error');
+        return;
+      }
+
+      var chainId = 'cosmoshub-4';
+      try {
+        await window.keplr.enable(chainId);
+      } catch (kErr) {
+        setWalletLoading(type, false);
+        var msg = kErr && kErr.message ? kErr.message : String(kErr);
+        if (msg.toLowerCase().includes('reject') || msg.toLowerCase().includes('denied')) {
+          showToast('⚠️', currentLang === 'tr'
+            ? 'Baglanti reddedildi. Keplr penceresinde "Onayla" secin.'
+            : 'Connection rejected. Click "Approve" in Keplr.', 'error');
+        } else {
+          showToast('⚠️', msg, 'error');
+        }
+        return;
+      }
+
+      var offlineSigner = window.keplr.getOfflineSigner(chainId);
+      var accounts = await offlineSigner.getAccounts();
+      if (!accounts || accounts.length === 0) {
+        setWalletLoading(type, false);
+        showToast('⚠️', currentLang === 'tr' ? 'Keplr hesabi bulunamadi.' : 'No Keplr account found.', 'error');
+        return;
+      }
+
+      connectedAddress = accounts[0].address;
+      connectedWallet  = 'Keplr';
+    }
+
+    /* ── Success ── */
+    setWalletLoading(type, false);
+    updateNavWallet(connectedWallet + (type==='metamask'?' 🦊':' ⚛️'), connectedAddress);
+    showConnectedStatus(connectedWallet + (type==='metamask'?' 🦊':' ⚛️'), connectedAddress);
+    document.getElementById(type === 'metamask' ? 'mmOption' : 'keplrOption').classList.add('success-state');
+    setTimeout(function(){ closeModal('walletModal'); }, 2000);
+    showToast('✅', connectedWallet + (currentLang === 'tr' ? ' basariyla baglandi!' : ' connected successfully!'), 'success');
+
+  } catch (err) {
+    setWalletLoading(type, false);
+    showToast('⚠️', err && err.message ? err.message : String(err), 'error');
+  }
+}
+
+/* ---------- disconnect ---------- */
+function disconnectWallet() {
+  connectedWallet  = null;
+  connectedAddress = null;
+  var btn = document.getElementById('walletConnectBtn');
+  var dot = document.getElementById('walletDot');
+  var txt = document.getElementById('walletBtnTxt');
+  var st  = document.getElementById('walletStatus');
+  var db  = document.getElementById('walletDisconnectBtn');
+  if (btn) btn.classList.remove('connected');
+  if (dot) { dot.style.background='var(--muted)'; dot.style.boxShadow='none'; dot.style.animation='none'; }
+  if (txt) txt.textContent = currentLang === 'tr' ? 'Cuzdan Bagla' : 'Connect Wallet';
+  if (st)  st.classList.remove('show');
+  if (db)  db.style.display = 'none';
+  var mm = document.getElementById('mmOption');
+  var kp = document.getElementById('keplrOption');
+  var mi = document.getElementById('mmInstall');
+  var ki = document.getElementById('keplrInstall');
+  if (mm) mm.classList.remove('success-state');
+  if (kp) kp.classList.remove('success-state');
+  if (mi) mi.classList.remove('show');
+  if (ki) ki.classList.remove('show');
+  closeModal('walletModal');
+  showToast('🔌', currentLang === 'tr' ? 'Cuzdan baglantisi kesildi.' : 'Wallet disconnected.', '');
+}
+
+/* ---------- auto-detect on page load ---------- */
+window.addEventListener('load', async function() {
+  try {
+    if (typeof window.ethereum !== 'undefined') {
+      var accs = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accs && accs.length > 0) {
+        connectedAddress = accs[0];
+        connectedWallet  = 'MetaMask';
+        updateNavWallet('MetaMask 🦊', connectedAddress);
+      }
+    }
+  } catch(e) {}
+});
+
+// ── NFT FILTER
+function filterNFT(cat,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.nft-card').forEach(card=>{
+    if(cat==='all'||card.dataset.category===cat){
+      card.style.display='block';
+      card.style.animation='fadeUp .4s ease both';
+    } else {
+      card.style.display='none';
+    }
+  });
+}
+
+// ── BUY NFT
+let buyNftData={};
+function openBuy(name,type,price,img){
+  if(!connectedWallet){
+    showToast('🔗',currentLang==='tr'?'Önce cüzdanınızı bağlayın!':'Please connect your wallet first!','error');
+    setTimeout(()=>openModal('walletModal'),800);
+    return;
+  }
+  buyNftData={name,type,price,img};
+  document.getElementById('buyNftImg').src=img;
+  document.getElementById('buyNftName').textContent=name;
+  document.getElementById('buyNftSub').textContent=type;
+  const rialoAmt=parseFloat(price)||0;
+  const fee=Math.max(5,Math.round(rialoAmt*0.005));
+  document.getElementById('buyNftPrice').textContent=price;
+  document.getElementById('buyNftFee').textContent='~'+fee.toLocaleString('tr-TR')+' $RIALO';
+  document.getElementById('buyNftTotal').textContent=(rialoAmt+fee).toLocaleString('tr-TR')+' $RIALO';
+  openModal('buyModal');
+}
+function confirmBuy(){
+  closeModal('buyModal');
+  showToast('🎉',currentLang==='tr'?buyNftData.name+" NFT satın alma işlemi başlatıldı!":buyNftData.name+' NFT purchase initiated!','success');
+}
+
+// ── BUY TOKEN
+const tokenData={
+  WOOF:{price:0.284,color:'rgba(212,148,90,.15)',name:'Woof'},
+  MEOW:{price:0.519,color:'rgba(147,51,234,.15)',name:'Meow'},
+  CHIRP:{price:0.147,color:'rgba(59,130,246,.15)',name:'Chirp'},
+  HOP:{price:0.092,color:'rgba(76,175,80,.15)',name:'Hoppy'},
+  NEMO:{price:0.063,color:'rgba(240,176,112,.15)',name:'Nemo'},
+  NIBBLE:{price:0.038,color:'rgba(233,196,106,.15)',name:'Nibble'},
+  OINK:{price:0.071,color:'rgba(244,162,204,.15)',name:'Oink'},
+  RIALO:{price:1.248,color:'rgba(200,169,110,.15)',name:'Rialo'}
+};
+let tokenBuyData={};
+function buyToken(symbol,emoji){
+  if(!connectedWallet){
+    showToast('🔗',currentLang==='tr'?'Önce cüzdanınızı bağlayın!':'Please connect your wallet first!','error');
+    setTimeout(()=>openModal('walletModal'),800);
+    return;
+  }
+  const d=tokenData[symbol];
+  tokenBuyData={symbol,emoji,price:d.price};
+  document.getElementById('tbIcon').textContent=emoji;
+  document.getElementById('tbIcon').style.background=d.color;
+  document.getElementById('tbName').textContent=d.name;
+  document.getElementById('tbSub').textContent='$'+symbol;
+  document.getElementById('tbPrice').textContent='$'+d.price.toFixed(3);
+  document.getElementById('tbQty').value=100;
+  updateTokenBuyTotal();
+  openModal('tokenBuyModal');
+}
+function updateTokenBuyTotal(){
+  const qty=Math.max(1,parseInt(document.getElementById('tbQty').value)||1);
+  const usdTotal=qty*tokenBuyData.price;
+  const rialoAmt=usdTotal/tokenData.RIALO.price;
+  const fee=tokenBuyData.symbol==='RIALO'?10:Math.max(5,Math.round(rialoAmt*0.01));
+  document.getElementById('tbFee').textContent='~'+fee.toLocaleString('tr-TR')+' $RIALO';
+  document.getElementById('tbTotal').textContent='$'+usdTotal.toFixed(2)+' (~'+(rialoAmt+fee).toFixed(2)+' $RIALO)';
+}
+function confirmTokenBuy(){
+  closeModal('tokenBuyModal');
+  const qty=Math.max(1,parseInt(document.getElementById('tbQty').value)||1);
+  showToast(tokenBuyData.emoji,currentLang==='tr'?qty+' $'+tokenBuyData.symbol+' satın alma işlemi başlatıldı!':qty+' $'+tokenBuyData.symbol+' purchase initiated!','success');
+}
+
+// ── TOAST
+let toastTimer;
+function showToast(icon,msg,type=''){
+  const t=document.getElementById('toast');
+  document.getElementById('toastIcon').textContent=icon;
+  document.getElementById('toastMsg').textContent=msg;
+  t.className='toast '+(type||'');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ── EMAIL CTA
+function submitEmail(){
+  const v=document.getElementById('ctaEmail').value;
+  if(!v||!v.includes('@'))return showToast('⚠️',currentLang==='tr'?'Geçerli bir e-posta girin.':'Enter a valid email.','error');
+  showToast('🐾',currentLang==='tr'?'Bekleme listesine eklendiniz!':'Added to the waitlist!','success');
+  document.getElementById('ctaEmail').value='';
+}
+
+// ── PET PROFILES ──────────────────────────────────
+let petProfiles = JSON.parse(localStorage.getItem('rialoPets')||'[]');
+
+// ── PET PHOTO UPLOAD ──────────────────────────────────────────────────────
+// Security note: the uploaded file is never trusted as-is. It's decoded into
+// an <img>, then re-drawn onto a <canvas> and re-encoded as a fresh JPEG data
+// URL. This strips any non-pixel data from the original file (a file that
+// isn't a real image will simply fail to decode and gets rejected) and keeps
+// localStorage usage bounded.
+let currentPetImage=null;
+function handlePetImageUpload(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){
+    showToast('⚠️',currentLang==='tr'?'Lütfen geçerli bir görsel dosyası seçin.':'Please select a valid image file.','error');
+    e.target.value=''; return;
+  }
+  if(file.size>8*1024*1024){
+    showToast('⚠️',currentLang==='tr'?'Görsel çok büyük (maks 8MB).':'Image is too large (max 8MB).','error');
+    e.target.value=''; return;
+  }
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const img=new Image();
+    img.onload=function(){
+      const maxDim=320;
+      let w=img.width,h=img.height;
+      if(w>h){ if(w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;} }
+      else{ if(h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;} }
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      currentPetImage=canvas.toDataURL('image/jpeg',0.72);
+      if(isSafeImageDataURI(currentPetImage)){
+        document.getElementById('petImgPreview').innerHTML='<img src="'+currentPetImage+'" style="width:100%;height:100%;object-fit:cover;">';
+        document.getElementById('petImgClear').style.display='inline';
+      } else {
+        showToast('⚠️',currentLang==='tr'?'Görsel işlenemedi.':'Could not process the image.','error');
+        clearPetImage();
+      }
+    };
+    img.onerror=function(){
+      showToast('⚠️',currentLang==='tr'?'Görsel yüklenemedi, dosya bozuk olabilir.':'Could not load image, the file may be corrupted.','error');
+    };
+    img.src=ev.target.result;
+  };
+  reader.onerror=function(){
+    showToast('⚠️',currentLang==='tr'?'Dosya okunamadı.':'Could not read the file.','error');
+  };
+  reader.readAsDataURL(file);
+}
+function clearPetImage(){
+  currentPetImage=null;
+  document.getElementById('petImgInput').value='';
+  document.getElementById('petImgPreview').innerHTML='🐾';
+  document.getElementById('petImgClear').style.display='none';
+}
+
+const speciesCategoryMap={'🐕 Köpek':'dog','🐈 Kedi':'cat','🦜 Kuş':'bird','🐇 Tavşan':'rabbit','🐠 Balık':'fish','🐹 Hamster':'hamster','🐷 Domuz':'pig','🦎 Sürüngen':'other','🐾 Diğer':'other'};
+const speciesTokenMap={'🐕 Köpek':'WOOF','🐈 Kedi':'MEOW','🦜 Kuş':'CHIRP','🐇 Tavşan':'HOP','🐠 Balık':'NEMO','🐹 Hamster':'NIBBLE','🐷 Domuz':'OINK','🦎 Sürüngen':'RIALO','🐾 Diğer':'RIALO'};
+
+function getEmoji(species){
+  const map={'🐕 Köpek':'🐕','🐈 Kedi':'🐈','🦜 Kuş':'🦜','🐇 Tavşan':'🐇','🐠 Balık':'🐠','🐹 Hamster':'🐹','🦎 Sürüngen':'🦎','🐾 Diğer':'🐾'};
+  for(const k in map){if(species&&species.startsWith(k.split(' ')[0]))return map[k];}
+  return '🐾';
+}
+
+function savePetProfile(){
+  const name=document.getElementById('petName').value.trim();
+  const species=document.getElementById('petSpecies').value;
+  const breed=document.getElementById('petBreed').value.trim();
+  const age=document.getElementById('petAge').value.trim();
+  const weight=document.getElementById('petWeight').value.trim();
+  const color=document.getElementById('petColor').value.trim();
+  const gender=document.querySelector('input[name="gender"]:checked');
+  const notes=document.getElementById('petNotes').value.trim();
+  const vetDate=document.getElementById('petVetDate').value;
+  const owner=document.getElementById('petOwner').value.trim();
+  const vaccine=document.getElementById('hVaccine').checked;
+  const neutered=document.getElementById('hNeutered').checked;
+  const microchip=document.getElementById('hMicrochip').checked;
+  const insured=document.getElementById('hInsured').checked;
+  const editIdx=document.getElementById('editIndex').value;
+
+  if(!name){showToast('⚠️',currentLang==='tr'?'Lütfen evcil hayvan ismini girin.':'Please enter the pet name.','error');return;}
+  if(!species){showToast('⚠️',currentLang==='tr'?'Lütfen türü seçin.':'Please select species.','error');return;}
+
+  const profile={
+    id:Date.now(),name,species,breed,age,weight,color,image:currentPetImage,
+    gender:gender?gender.value:(currentLang==='tr'?'Belirsiz':'Unknown'),
+    notes,vetDate,owner,vaccine,neutered,microchip,insured,
+    createdAt:new Date().toLocaleDateString('tr-TR')
+  };
+
+  if(editIdx!==''){
+    if(!profile.image) profile.image=petProfiles[parseInt(editIdx)]&&petProfiles[parseInt(editIdx)].image||null;
+    petProfiles[parseInt(editIdx)]=profile;
+    document.getElementById('editIndex').value='';
+    showToast('✏️',currentLang==='tr'?name+" güncellendi!":name+' updated!','success');
+  }else{
+    petProfiles.push(profile);
+    const tokSym=speciesTokenMap[species]||'RIALO';
+    showToast('🐾',currentLang==='tr'?name+" kaydedildi! NFT olarak eklendi ve $"+tokSym+" tokenına işlendi.":name+' saved! Added as an NFT and linked to the $'+tokSym+' token.','success');
+  }
+  localStorage.setItem('rialoPets',JSON.stringify(petProfiles));
+  clearPetForm();
+  renderPetCards();
+  renderValueRanking();
+  renderUserNFTs();
+  updateTokenNftCounts();
+}
+
+function clearPetForm(){
+  ['petName','petBreed','petAge','petWeight','petColor','petNotes','petOwner'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.value='';
+  });
+  document.getElementById('petSpecies').value='';
+  document.getElementById('petVetDate').value='';
+  document.getElementById('editIndex').value='';
+  document.querySelectorAll('input[name="gender"]').forEach(r=>r.checked=false);
+  ['hVaccine','hNeutered','hMicrochip','hInsured'].forEach(id=>document.getElementById(id).checked=false);
+  clearPetImage();
+}
+
+function editPetProfile(idx){
+  const p=petProfiles[idx];
+  if(!p)return;
+  document.getElementById('petName').value=p.name||'';
+  document.getElementById('petSpecies').value=p.species||'';
+  document.getElementById('petBreed').value=p.breed||'';
+  document.getElementById('petAge').value=p.age||'';
+  document.getElementById('petWeight').value=p.weight||'';
+  document.getElementById('petColor').value=p.color||'';
+  document.getElementById('petNotes').value=p.notes||'';
+  document.getElementById('petOwner').value=p.owner||'';
+  document.getElementById('petVetDate').value=p.vetDate||'';
+  document.getElementById('editIndex').value=idx;
+  const genderRadio=document.querySelector('input[name="gender"][value="'+p.gender+'"]');
+  if(genderRadio)genderRadio.checked=true;
+  document.getElementById('hVaccine').checked=!!p.vaccine;
+  document.getElementById('hNeutered').checked=!!p.neutered;
+  document.getElementById('hMicrochip').checked=!!p.microchip;
+  document.getElementById('hInsured').checked=!!p.insured;
+  if(p.image&&isSafeImageDataURI(p.image)){
+    currentPetImage=p.image;
+    document.getElementById('petImgPreview').innerHTML='<img src="'+p.image+'" style="width:100%;height:100%;object-fit:cover;">';
+    document.getElementById('petImgClear').style.display='inline';
+  } else {
+    clearPetImage();
+  }
+  document.getElementById('identity').scrollIntoView({behavior:'smooth'});
+}
+
+function deletePetProfile(idx){
+  const name=petProfiles[idx]?petProfiles[idx].name:'?';
+  petProfiles.splice(idx,1);
+  localStorage.setItem('rialoPets',JSON.stringify(petProfiles));
+  renderPetCards();
+  renderValueRanking();
+  renderUserNFTs();
+  updateTokenNftCounts();
+  showToast('🗑️',currentLang==='tr'?name+" profili silindi.":name+' profile deleted.','');
+}
+
+function renderPetCards(){
+  const wrap=document.getElementById('petCardsWrap');
+  const empty=document.getElementById('petEmptyState');
+  const count=document.getElementById('petCount');
+  count.textContent=petProfiles.length;
+  if(petProfiles.length===0){
+    empty.style.display='block';
+    // Remove all cards except empty state
+    wrap.querySelectorAll('.pet-id-card').forEach(c=>c.remove());
+    return;
+  }
+  empty.style.display='none';
+  wrap.querySelectorAll('.pet-id-card').forEach(c=>c.remove());
+  petProfiles.forEach((p,i)=>{
+    const healthTags=[];
+    if(p.vaccine)healthTags.push(currentLang==='tr'?'Aşılı':'Vaccinated');
+    if(p.neutered)healthTags.push(currentLang==='tr'?'Kısırlaştırılmış':'Neutered');
+    if(p.microchip)healthTags.push(currentLang==='tr'?'Mikro Çipli':'Microchipped');
+    if(p.insured)healthTags.push(currentLang==='tr'?'Sigortalı':'Insured');
+    const healthHTML=healthTags.map(t=>'<span class="pet-id-tag health">✓ '+t+'</span>').join('');
+    const genderIcon=p.gender==='Erkek'?'♂':p.gender==='Dişi'?'♀':'?';
+    const card=document.createElement('div');
+    card.className='pet-id-card';
+    card.innerHTML=`
+      <div class="pet-id-card-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="pet-id-avatar" style="overflow:hidden;">${(p.image&&isSafeImageDataURI(p.image))?'<img src="'+p.image+'" style="width:100%;height:100%;object-fit:cover;">':getEmoji(p.species)}</div>
+          <div>
+            <div class="pet-id-name">${escapeHTML(p.name)}</div>
+            <div class="pet-id-species">${escapeHTML(p.species)||''} ${p.breed?'• '+escapeHTML(p.breed):''}</div>
+          </div>
+        </div>
+        <div class="pet-id-actions">
+          <button class="pet-id-edit" onclick="editPetProfile(${i})" title="Düzenle">✏️</button>
+          <button class="pet-id-del" onclick="deletePetProfile(${i})" title="Sil">🗑️</button>
+        </div>
+      </div>
+      <div class="pet-id-stats">
+        <div class="pet-id-stat"><div class="pet-id-stat-val">${escapeHTML(p.age)||'—'}</div><div class="pet-id-stat-lbl">${currentLang==='tr'?'Yaş':'Age'}</div></div>
+        <div class="pet-id-stat"><div class="pet-id-stat-val">${p.weight?escapeHTML(p.weight)+' kg':'—'}</div><div class="pet-id-stat-lbl">${currentLang==='tr'?'Kilo':'Weight'}</div></div>
+        <div class="pet-id-stat"><div class="pet-id-stat-val">${genderIcon} ${escapeHTML(p.gender)||'—'}</div><div class="pet-id-stat-lbl">${currentLang==='tr'?'Cinsiyet':'Gender'}</div></div>
+        <div class="pet-id-stat"><div class="pet-id-stat-val">${escapeHTML(p.color)||'—'}</div><div class="pet-id-stat-lbl">${currentLang==='tr'?'Renk':'Color'}</div></div>
+      </div>
+      ${healthHTML?'<div class="pet-id-tags">'+healthHTML+'</div>':''}
+      ${p.vetDate?'<div class="pet-id-tags"><span class="pet-id-tag">📅 '+(currentLang==='tr'?'Son Vet: ':'Last Vet: ')+escapeHTML(p.vetDate)+'</span></div>':''}
+      ${p.owner?'<div class="pet-id-tags"><span class="pet-id-tag">👤 '+(currentLang==='tr'?'Sahip: ':'Owner: ')+escapeHTML(p.owner)+'</span></div>':''}
+      ${p.notes?'<div class="pet-id-note">📋 '+escapeHTML(p.notes)+'</div>':''}
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+// Initialize on load
+renderPetCards();
+
+
+// ── DIGITAL ID FORM ──────────────────────────────────────────────────────
+function generateHash(){
+  const chars='0123456789abcdef';
+  let hash='0x';
+  for(let i=0;i<64;i++) hash+=chars[Math.floor(Math.random()*16)];
+  return hash;
+}
+
+// ── COMMUNITY FORM ────────────────────────────────────────────────────────
+function submitCommunity(){
+  const fname=document.getElementById('com-fname').value.trim();
+  const email=document.getElementById('com-email').value.trim();
+  if(!fname){showToast('⚠️',currentLang==='tr'?"Adınızı girin.":'Please enter your name.','error');return;}
+  if(!email||!email.includes('@')){showToast('⚠️',currentLang==='tr'?"Geçerli e-posta girin.":'Enter a valid email.','error');return;}
+
+  const memberId='RWA-'+Math.floor(100000+Math.random()*900000);
+  const hash=generateHash().slice(0,34)+'...';
+  document.getElementById('communityHash').innerHTML=
+    '<strong style="color:var(--amber2)">'+(currentLang==='tr'?'Üye ID':'Member ID')+':</strong> '+memberId+'<br>'+
+    '<strong style="color:var(--amber2)">DAO Hash:</strong> '+hash+'<br>'+
+    '<span style="color:#6ECF72;font-size:10px">✅ '+(currentLang==='tr'?"DAO sözleşmesine eklendi":'Added to DAO contract')+'</span>';
+  const lname=document.getElementById('com-lname').value.trim();
+  const countrySel=document.getElementById('com-country');
+  const country=countrySel.selectedOptions[0]&&countrySel.value?countrySel.selectedOptions[0].text:'';
+  const petCount=document.getElementById('com-petcount').value;
+  const txtEl=document.getElementById('communitySuccessTxt');
+  txtEl.textContent=(currentLang==='tr'?
+    `Hoş geldin ${fname}! PetVerse topluluğuna katıldın. DAO oylamalarına katılabilir ve ekosistemi şekillendirebilirsin.`:
+    `Welcome ${fname}! You've joined the PetVerse community. You can now participate in DAO votes and shape the ecosystem.`);
+
+  // Persist the new member so they actually show up in the community list
+  communityMembers.unshift({
+    id:memberId,
+    name:(fname+' '+lname).trim(),
+    country:country||'',
+    petCount:petCount||'',
+    joinedAt:Date.now()
+  });
+  localStorage.setItem('rialoCommunityMembers',JSON.stringify(communityMembers));
+  renderCommunityMembers();
+
+  document.getElementById('communityForm').style.display='none';
+  document.getElementById('communitySuccess').style.display='block';
+  showToast('🌍',currentLang==='tr'?fname+" topluluğa katıldı!":fname+' joined the community!','success');
+}
+function resetCommunityForm(){
+  document.getElementById('communityForm').style.display='block';
+  document.getElementById('communitySuccess').style.display='none';
+  ['com-fname','com-lname','com-email','com-wallet','com-bio'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  ['com-country','com-petcount'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value='';});
+  ['com-nft','com-dao','com-stake','com-rwa'].forEach(id=>document.getElementById(id).checked=false);
+}
+
+// ── COMMUNITY MEMBERS LIST ────────────────────────────────────────────────
+let communityMembers = JSON.parse(localStorage.getItem('rialoCommunityMembers')||'[]');
+function renderCommunityMembers(){
+  const wrap=document.getElementById('communityMembersCard');
+  if(!wrap) return;
+  if(!communityMembers.length){
+    wrap.innerHTML='<div class="member-empty" data-tr="Henüz kimse katılmadı. İlk üye sen ol! 🎉" data-en="No one has joined yet. Be the first member! 🎉">'+
+      (currentLang==='tr'?'Henüz kimse katılmadı. İlk üye sen ol! 🎉':'No one has joined yet. Be the first member! 🎉')+'</div>';
+    return;
+  }
+  const shown=communityMembers.slice(0,8);
+  wrap.innerHTML='<div class="member-count-badge">👥 '+communityMembers.length+' '+(currentLang==='tr'?'kayıtlı üye':'registered members')+'</div>'+
+    shown.map(m=>{
+      const initial=escapeHTML((m.name||'?').trim().charAt(0).toUpperCase()||'?');
+      const dateTxt=new Date(m.joinedAt).toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US');
+      const metaParts=[dateTxt];
+      if(m.country) metaParts.push(escapeHTML(m.country));
+      if(m.petCount&&m.petCount!=='0') metaParts.push((currentLang==='tr'?'🐾 ':'🐾 ')+escapeHTML(m.petCount)+(currentLang==='tr'?' evcil hayvan':' pets'));
+      return '<div class="member-row">'+
+        '<div class="member-avatar">'+initial+'</div>'+
+        '<div class="member-info">'+
+          '<div class="member-name">'+escapeHTML(m.name||'Anonim')+'</div>'+
+          '<div class="member-meta">'+metaParts.join(' · ')+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+}
+renderCommunityMembers();
+
+// ── VALUE RANKING ─────────────────────────────────────────────────────────
+function parseAgeYears(ageStr){
+  if(!ageStr) return null;
+  const s=ageStr.toLowerCase();
+  const num=parseFloat((s.match(/[\d.,]+/)||[])[0]?.replace(',','.'));
+  if(isNaN(num)) return null;
+  if(s.includes('ay')||s.includes('month')) return num/12;
+  return num;
+}
+function computeValueScore(pet){
+  let score=0;
+  if(pet.vaccine) score+=20;
+  if(pet.microchip) score+=20;
+  if(pet.insured) score+=15;
+  if(pet.neutered) score+=10;
+  if(pet.vetDate){
+    const days=(Date.now()-new Date(pet.vetDate).getTime())/86400000;
+    if(days>=0 && days<=365) score+=15;
+  }
+  const ageYears=parseAgeYears(pet.age);
+  if(ageYears!==null) score+=Math.max(0,15-Math.min(ageYears,15));
+  else score+=5;
+  return Math.round(score);
+}
+function renderValueRanking(){
+  const wrap=document.getElementById('rankTableWrap');
+  if(!wrap) return;
+  if(!petProfiles.length){
+    wrap.innerHTML='<div class="rank-empty" data-tr="Henüz kayıtlı evcil hayvan yok. Dijital Kimlik bölümünden profil ekleyin." data-en="No pets registered yet. Add a profile from the Digital Identity section.">'+
+      (currentLang==='tr'?'Henüz kayıtlı evcil hayvan yok. Dijital Kimlik bölümünden profil ekleyin.':'No pets registered yet. Add a profile from the Digital Identity section.')+'</div>';
+    return;
+  }
+  const ranked=petProfiles.map(p=>({...p,_score:computeValueScore(p)})).sort((a,b)=>b._score-a._score).slice(0,10);
+  wrap.innerHTML='<div class="rank-table-wrap">'+ranked.map((p,i)=>{
+    const pos=i+1;
+    const cls=pos===1?'top1':pos===2?'top2':pos===3?'top3':'';
+    const medal=pos===1?'🥇':pos===2?'🥈':pos===3?'🥉':'#'+pos;
+    let badges='';
+    if(p.vaccine) badges+='💉';
+    if(p.microchip) badges+='🔗';
+    if(p.insured) badges+='🛡️';
+    if(p.neutered) badges+='✅';
+    return '<div class="rank-row '+cls+'">'+
+      '<div class="rank-pos">'+medal+'</div>'+
+      '<div class="rank-icon">'+getEmoji(p.species)+'</div>'+
+      '<div><div class="rank-name">'+escapeHTML(p.name)+'</div><div class="rank-sub">'+escapeHTML(p.breed||p.species||'')+(p.age?' · '+escapeHTML(p.age):'')+'</div></div>'+
+      '<div class="rank-badges">'+badges+'</div>'+
+      '<div class="rank-score"><div class="rank-score-val">'+p._score+'</div><div class="rank-score-lbl" data-tr="Puan" data-en="Score">'+(currentLang==='tr'?'Puan':'Score')+'</div></div>'+
+      '</div>';
+  }).join('')+'</div>';
+}
+renderValueRanking();
+
+// ── AUTO NFT + TOKEN PROCESSING ───────────────────────────────────────────
+// When a digital identity is created, it is automatically rendered as an NFT
+// card in the marketplace and linked to its species token. Buy buttons call
+// buyUserPetNFT(index) — a plain numeric index — rather than embedding pet
+// name/breed text inside an inline onclick string, so there is no way for
+// user-entered text to break out of an HTML attribute or JS string literal.
+function userPetPlaceholderImage(species){
+  const emoji=getEmoji(species);
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="#1a1410"/><text x="50%" y="54%" font-size="120" text-anchor="middle" dominant-baseline="central">'+emoji+'</text></svg>';
+  return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg);
+}
+function buyUserPetNFT(idx){
+  const p=petProfiles[idx];
+  if(!p) return;
+  const score=computeValueScore(p);
+  const rialoPrice=Math.max(50,Math.round(score*15));
+  const typeStr=(p.breed?p.breed+' • ':'')+(p.species||'');
+  const img=(p.image&&isSafeImageDataURI(p.image))?p.image:userPetPlaceholderImage(p.species);
+  openBuy(p.name||'', typeStr, rialoPrice.toLocaleString('tr-TR')+' $RIALO', img);
+}
+function renderUserNFTs(){
+  const grid=document.getElementById('nftGrid');
+  if(!grid) return;
+  grid.querySelectorAll('[data-user-pet="true"]').forEach(c=>c.remove());
+  const rarityLabel={legendary:{tr:'Efsanevi',en:'Legendary'},epic:{tr:'Epik',en:'Epic'},rare:{tr:'Nadir',en:'Rare'},common:{tr:'Yaygın',en:'Common'}};
+  petProfiles.forEach((p,i)=>{
+    const score=computeValueScore(p);
+    const rialoPrice=Math.max(50,Math.round(score*15));
+    const usdPrice=Math.round(rialoPrice*tokenData.RIALO.price);
+    const rarity=score>=90?'legendary':score>=70?'epic':score>=50?'rare':'common';
+    const category=speciesCategoryMap[p.species]||'other';
+    const tokenSym=speciesTokenMap[p.species]||'RIALO';
+    const img=(p.image&&isSafeImageDataURI(p.image))?p.image:userPetPlaceholderImage(p.species);
+    const traits=[];
+    if(p.vaccine) traits.push(currentLang==='tr'?'Aşılı':'Vaccinated');
+    if(p.microchip) traits.push(currentLang==='tr'?'Mikroçipli':'Microchipped');
+    if(p.insured) traits.push(currentLang==='tr'?'Sigortalı':'Insured');
+    if(!traits.length) traits.push(currentLang==='tr'?'Yeni Kayıt':'New Entry');
+    const card=document.createElement('div');
+    card.className='nft-card';
+    card.dataset.category=category;
+    card.dataset.userPet='true';
+    card.innerHTML=`
+      <div class="nft-img-wrap">
+        <img class="nft-img" src="${img}" alt="${escapeHTML(p.name)}">
+        <div class="nft-badge">👤 ${currentLang==='tr'?'Kullanıcı Kaydı':'User Mint'}</div>
+        <div class="nft-rarity rarity-${rarity}">${currentLang==='tr'?rarityLabel[rarity].tr:rarityLabel[rarity].en}</div>
+      </div>
+      <div class="nft-body">
+        <div class="nft-name">${escapeHTML(p.name)}</div>
+        <div class="nft-type">${escapeHTML(p.breed||'')}${p.breed?' • ':''}${escapeHTML(p.species||'')}</div>
+        <div class="nft-traits">${traits.map(t=>'<span class="nft-trait">'+escapeHTML(t)+'</span>').join('')}<span class="nft-trait">$${tokenSym}</span></div>
+        <div class="nft-footer">
+          <div class="nft-price">
+            <div class="nft-price-eth">${rialoPrice.toLocaleString('tr-TR')} $RIALO</div>
+            <div class="nft-price-usd">≈ $${usdPrice.toLocaleString('tr-TR')}</div>
+          </div>
+          <button class="nft-buy-btn" onclick="buyUserPetNFT(${i})">${currentLang==='tr'?'Satın Al':'Buy Now'}</button>
+        </div>
+      </div>
+    `;
+    grid.prepend(card);
+  });
+  const activeBtn=document.querySelector('.filter-btn.active');
+  const cat=activeBtn?activeBtn.dataset.cat:'all';
+  document.querySelectorAll('.nft-card').forEach(card=>{
+    card.style.display=(cat==='all'||card.dataset.category===cat)?'block':'none';
+  });
+}
+function updateTokenNftCounts(){
+  const linked={WOOF:[],MEOW:[],CHIRP:[],HOP:[],NEMO:[],NIBBLE:[],OINK:[],RIALO:[]};
+  petProfiles.forEach(p=>{
+    const sym=speciesTokenMap[p.species]||'RIALO';
+    if(linked[sym]!==undefined) linked[sym].push(p.name||'?');
+  });
+  Object.keys(linked).forEach(sym=>{
+    const el=document.getElementById('tokenNftCount-'+sym);
+    if(!el) return;
+    const names=linked[sym];
+    if(!names.length){
+      el.textContent='🔗 0 NFT';
+      el.title='';
+    } else {
+      const shown=names.slice(0,2).join(', ');
+      const extra=names.length>2?' +'+(names.length-2):'';
+      el.textContent='🔗 '+names.length+' NFT: '+shown+extra;
+      el.title=names.join(', ');
+    }
+    el.classList.remove('token-nft-pulse');
+    void el.offsetWidth; // restart animation
+    el.classList.add('token-nft-pulse');
+  });
+}
+renderUserNFTs();
+updateTokenNftCounts();
+
+setLang('en');
+
+</script>
+</body>
+</html>
