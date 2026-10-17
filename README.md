@@ -96,4 +96,4 @@ hâle getirir.
 
 Live: https://cagdasozsahin.github.io/rialo-petverse-rwa/
 
-> ⚠️ Runs on Ethereum Sepolia testnet. Test tokens only; contracts are not audited.
+> ⚠️ Runs on Ethereum Sepolia testnet. Test tokens only; contracts are not audited..
